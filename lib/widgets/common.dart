@@ -21,8 +21,8 @@ Widget buildImageWithDel(_image, Function fun) {
       ),
       InkWell(
         child: Icon(
-          Icons.highlight_off,
-          color: Colors.red,
+          Icons.cancel,
+          color: Colors.black45,
         ),
         onTap: () {
           fun();
@@ -95,8 +95,8 @@ class _SoundWidgetState extends State<SoundWidget> {
       ),
       InkWell(
         child: Icon(
-          Icons.highlight_off,
-          color: Colors.red,
+          Icons.cancel,
+          color: Colors.black45,
         ),
         onTap: () {
           widget.function();
@@ -104,7 +104,7 @@ class _SoundWidgetState extends State<SoundWidget> {
       ),
       Positioned(
         left: ScreenUtil().setWidth(65),
-        top: ScreenUtil().setHeight(80),
+        top: ScreenUtil().setHeight(60),
         child: InkWell(
           child: Icon(_playing?Icons.stop:Icons.play_arrow, color: Colors.white,size: 25,),
           onTap: () {
@@ -119,6 +119,11 @@ class _SoundWidgetState extends State<SoundWidget> {
             });
           },
         ),
+      ),
+      Positioned(
+        left: ScreenUtil().setWidth(50),
+        top: ScreenUtil().setHeight(120),
+        child: Text(widget.file.duration.substring(2,7), style: TextStyle(color: Colors.white),),
       )
     ],
   );
@@ -128,7 +133,8 @@ class _SoundWidgetState extends State<SoundWidget> {
 class SelectFile {
   File file;
   String type;
+  String duration;
 
-  SelectFile({this.file, this.type});
+  SelectFile({this.file, this.type, this.duration});
 }
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pupil/widgets/common.dart';
+import 'package:pupil/widgets/photo_view.dart';
 import 'package:pupil/widgets/recorder.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -106,14 +107,19 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: <Widget>[
           _buildTimer(),
           _buildCourseWidget(),
           _buildTypeWidget(),
           Divider(),
           _buildContentWidget(),
+          SizedBox(
+            height: ScreenUtil().setHeight(200),
+          )
         ],
+      ),
       ),
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -167,7 +173,10 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     print('build image....');
     return InkWell(
       onTap: () {
-        {}
+        Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (c, a, s) => PreviewImagesWidget(
+                    file.file,
+                  )));
       },
       child: Container(
         child: buildImageWithDel(file.file, () {
@@ -258,10 +267,9 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return Recorder((path) {
-            print("path = " + path);
+          return Recorder((path, duration) {
             files.add(
-                SelectFile(file: LocalFileSystem().file(path), type: 'sound'));
+                SelectFile(file: LocalFileSystem().file(path), type: 'sound', duration: duration));
             setState(() {
               
             });
@@ -271,7 +279,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 480, maxHeight: 720);
+        source: ImageSource.gallery, maxWidth: 480, maxHeight: 720);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});

@@ -22,7 +22,7 @@ class ThemeSettingPage extends StatelessWidget {
             ),
             onTap: () {
               //主题更新后，MaterialApp会重新build
-              Provider.of<ThemeModel>(context).theme = e;
+              Provider.of<ThemeModel>(context, listen: false).theme = e;
               Navigator.pop(context);
             },
           );

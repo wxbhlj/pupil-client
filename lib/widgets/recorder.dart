@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/screenutil.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pupil/common/routers.dart';
 
-typedef OnFinished = void Function(String path);
+typedef OnFinished = void Function(String path, String duration);
 
 class Recorder extends StatefulWidget {
   final OnFinished _onFinished;
@@ -163,12 +163,13 @@ class _RecorderState extends State<Recorder> {
 
   _stop() async {
     var result = await _recorder.stop();
+    
     print("Stop recording: ${result.path}");
     print("Stop recording: ${result.duration}");
     File file = LocalFileSystem().file(result.path);
     print("File length: ${await file.length()}");
     Routers.router.pop(context);
-    onFinished(result.path);
+    onFinished(result.path, result.duration.toString());
 
   }
 }
