@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pupil/common/routers.dart';
 
 class HomeIndexPage extends StatefulWidget {
   @override
@@ -25,6 +26,14 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     return Scaffold(
       appBar: AppBar(
         title: Text('首页'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.golf_course),
+            onPressed: () {
+              Routers.navigateTo(context, Routers.taskSubmittedPage);
+            },
+          )
+        ],
       ),
       body: Column(
         children: <Widget>[

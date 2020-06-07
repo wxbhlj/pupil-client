@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluro/fluro.dart';
 import 'package:pupil/pages/task_new.dart';
+import 'package:pupil/pages/task_submitted.dart';
 
 
 import '../pages/login.dart';
@@ -16,6 +17,7 @@ class Routers {
   static String themeSettingPage = '/themeSettingPage';
   static String languageSettingPage = '/languageSettingPage';
   static String taskNewPage = '/taskNewPage';
+  static String taskSubmittedPage = '/taskSubmittedPage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -28,6 +30,7 @@ class Routers {
 
     router.define(themeSettingPage, handler: _buildHandler(ThemeSettingPage()));
     router.define(taskNewPage, handler:_buildHandler(TaskNewPage()));
+    router.define(taskSubmittedPage, handler:_buildHandler(TaskSubmittedPage()));
     
   }
 

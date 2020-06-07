@@ -25,6 +25,11 @@ class Utils {
     }
   }
 
+  static String twoDigits(int n) {
+      if (n >= 10) return "$n";
+      return "0$n";
+  }
+
 
   static String formatDate3(int time) {
     if (time == null) {

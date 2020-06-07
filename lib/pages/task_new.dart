@@ -2,11 +2,19 @@ import 'dart:async';
 
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pupil/common/global.dart';
+import 'package:pupil/common/http_util.dart';
+import 'package:pupil/common/routers.dart';
+import 'package:pupil/common/utils.dart';
 import 'package:pupil/widgets/common.dart';
+import 'package:pupil/widgets/dialog.dart';
+import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
 import 'package:pupil/widgets/recorder.dart';
 import 'package:wakelock/wakelock.dart';
@@ -63,9 +71,11 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   _setTimer() {
     _countdownTimer = new Timer.periodic(new Duration(seconds: 1), (timer) {
+      _seconds++;
+      try{
+        _showTimerState.currentState.refresh(_seconds, _outTime);
+      } catch (e) {}
       
-        _seconds++;
-      _showTimerState.currentState.refresh(_seconds, _outTime);
     });
   }
 
@@ -107,19 +117,19 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: ShowTimer(_showTimerState),
       body: SingleChildScrollView(
         child: Column(
-        children: <Widget>[
-          _buildTimer(),
-          _buildCourseWidget(),
-          _buildTypeWidget(),
-          Divider(),
-          _buildContentWidget(),
-          SizedBox(
-            height: ScreenUtil().setHeight(200),
-          )
-        ],
-      ),
+          children: <Widget>[
+            _buildCourseWidget(),
+            _buildTypeWidget(),
+            Divider(),
+            _buildContentWidget(),
+            SizedBox(
+              height: ScreenUtil().setHeight(200),
+            )
+          ],
+        ),
       ),
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -174,9 +184,9 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (c, a, s) => PreviewImagesWidget(
-                    file.file,
-                  )));
+            pageBuilder: (c, a, s) => PreviewImagesWidget(
+                  file.file,
+                )));
       },
       child: Container(
         child: buildImageWithDel(file.file, () {
@@ -268,11 +278,11 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
         context: context,
         builder: (BuildContext context) {
           return Recorder((path, duration) {
-            files.add(
-                SelectFile(file: LocalFileSystem().file(path), type: 'sound', duration: duration));
-            setState(() {
-              
-            });
+            files.add(SelectFile(
+                file: LocalFileSystem().file(path),
+                type: 'sound',
+                duration: duration));
+            setState(() {});
           });
         });
   }
@@ -294,7 +304,9 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
           style: TextStyle(color: Colors.white, fontSize: 18),
         ),
         color: Theme.of(context).primaryColor,
-        onPressed: () {},
+        onPressed: () {
+          _submit();
+        },
       ),
     );
   }
@@ -397,29 +409,72 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     }
   }
 
-  Widget _buildTimer() {
-    return ShowTimer(_showTimerState);
+  _submit() {
+
+    if(_seconds < 60*3) {
+       Fluttertoast.showToast(
+            msg: '时间太短(少于3分钟)，请稍后再试', gravity: ToastGravity.CENTER);
+      return;
+    }
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new LoadingDialog(
+            text: "正在保存...",
+          );
+        });
+
+    FormData formData = new FormData.fromMap({
+      "classification": _type,
+      "course": _course,
+      "outTime": _outTime,
+      "score": 0,
+      "spendTime": _seconds,
+      "status": "UPLOAD",
+      "title": _course + _type,
+      "userId": Global.profile.user.userId
+    });
+    String url = "/api/v1/ums/task";
+    if (files.length > 0) {
+      for (SelectFile file in files) {
+        formData.files.add(MapEntry(
+          "files",
+          MultipartFile.fromFileSync(file.file.path, filename: file.type),
+        ));
+      }
+    }
+
+    print(formData);
+    HttpUtil.getInstance().post(url, formData: formData).then((val) {
+      Navigator.pop(context);
+      print(val);
+      if (val['code'] == '10000') {
+
+        Routers.router.navigateTo(context, Routers.taskSubmittedPage, replace: true);
+      } else {
+        Fluttertoast.showToast(
+            msg: val['message'], gravity: ToastGravity.CENTER);
+      }
+    });
   }
 }
 
-class ShowTimer extends StatefulWidget {
+class ShowTimer extends StatefulWidget implements PreferredSizeWidget {
   ShowTimer(Key key) : super(key: key);
   @override
   _ShowTimerState createState() => _ShowTimerState();
+
+  @override
+  Size get preferredSize => new Size.fromHeight(ScreenUtil().setHeight(100));
 }
 
 class _ShowTimerState extends State<ShowTimer> {
-
   int _seconds = 0;
   int _outTime = 0;
 
   @override
   Widget build(BuildContext context) {
-    String minutes = (_seconds ~/ 60).toString();
-    String seconds = (_seconds % 60) < 10
-        ? ("0" + (_seconds % 60).toString())
-        : (_seconds % 60).toString();
-
     return Container(
       color: Theme.of(context).primaryColor,
       child: Padding(
@@ -433,21 +488,43 @@ class _ShowTimerState extends State<ShowTimer> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
+              InkWell(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Icon(
+                    Icons.keyboard_arrow_left,
+                    size: 32,
+                    color: Colors.white,
+                  ),
+                ),
+                onTap: () {
+                  showConfirmDialog(context, '确定不做了吗', () {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
               new Padding(
                   padding: const EdgeInsets.all(6.0),
                   child: Text(
-                    '用时 ' + minutes + ':' + seconds,
+                    '' +
+                        Utils.twoDigits(_seconds ~/ 60) +
+                        ':' +
+                        Utils.twoDigits(_seconds % 60),
                     style: TextStyle(fontSize: 30, color: Colors.white),
                   )),
               Padding(
-                padding: EdgeInsets.only(right: 20),
-                child: Text(_outTime > 0
-                    ? '离开 ' +
-                        (_outTime ~/ 60).toString() +
-                        ':' +
-                        (_outTime % 60).toString()
-                    : ''),
-              )
+                  padding: EdgeInsets.only(right: 20),
+                  child: Text(
+                    _outTime > 0
+                        ? '' +
+                            Utils.twoDigits(_outTime ~/ 60) +
+                            ':' +
+                            Utils.twoDigits(_outTime % 60)
+                        : '',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ))
             ],
           ),
         ),
@@ -460,6 +537,5 @@ class _ShowTimerState extends State<ShowTimer> {
       this._seconds = seconds;
       this._outTime = outTime;
     });
-
   }
 }
