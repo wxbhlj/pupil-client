@@ -185,7 +185,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
       onTap: () {
         Navigator.of(context).push(PageRouteBuilder(
             pageBuilder: (c, a, s) => PreviewImagesWidget(
-                  file.file,
+                  file.file.path,
                 )));
       },
       child: Container(
@@ -414,7 +414,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     if(_seconds < 60*3) {
        Fluttertoast.showToast(
             msg: '时间太短(少于3分钟)，请稍后再试', gravity: ToastGravity.CENTER);
-      return;
+      //return;
     }
     showDialog(
         context: context,
@@ -505,21 +505,14 @@ class _ShowTimerState extends State<ShowTimer> {
               ),
               new Padding(
                   padding: const EdgeInsets.all(6.0),
-                  child: Text(
-                    '' +
-                        Utils.twoDigits(_seconds ~/ 60) +
-                        ':' +
-                        Utils.twoDigits(_seconds % 60),
+                  child: Text(Utils.formatTime(_seconds),
                     style: TextStyle(fontSize: 30, color: Colors.white),
                   )),
               Padding(
                   padding: EdgeInsets.only(right: 20),
                   child: Text(
                     _outTime > 0
-                        ? '' +
-                            Utils.twoDigits(_outTime ~/ 60) +
-                            ':' +
-                            Utils.twoDigits(_outTime % 60)
+                        ? '' +Utils.formatTime(_outTime)
                         : '',
                     style: TextStyle(
                       color: Colors.red,

@@ -7,7 +7,7 @@ import '../pages/login.dart';
 
 
 import 'home_index.dart';
-import 'home_setting.dart';
+import 'home_parents.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    list..add(HomeIndexPage())..add(HomeSettingPage());
+    list..add(HomeIndexPage())..add(HomeParentsPage());
     _eventSubscription =
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
       print("C onEvent:" + event.eventType);
@@ -68,8 +68,8 @@ class _HomePageState extends State<HomePage> {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
-        _tabItem(0, Icons.home, '首页'),
-        _tabItem(1, Icons.settings, '设置')
+        _tabItem(0, Icons.home, '学生'),
+        _tabItem(1, Icons.people, '家长')
       ],
     );
   }

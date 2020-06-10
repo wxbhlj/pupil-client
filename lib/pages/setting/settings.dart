@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pupil/common/global.dart';
 
-import '../widgets/list_memu_item.dart';
-import '../widgets/dialog.dart';
-import '../states/user_model.dart';
-import '../common/routers.dart';
+import '../../widgets/list_memu_item.dart';
+import '../../widgets/dialog.dart';
+import '../../states/user_model.dart';
+import '../../common/routers.dart';
 
-class HomeSettingPage extends StatefulWidget {
+class SettingsPage extends StatefulWidget {
   @override
-  _HomeSettingPageState createState() => _HomeSettingPageState();
+  _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _HomeSettingPageState extends State<HomeSettingPage> {
+class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class _HomeSettingPageState extends State<HomeSettingPage> {
       ),
       body: Column(
         children: <Widget>[
-          _picture(),
+      
           _themeColor(),
 
           _nickSetting(),
@@ -62,11 +62,7 @@ class _HomeSettingPageState extends State<HomeSettingPage> {
   }
 
 
-  Widget _picture() {
-    
-    return Image.asset('images/family.jpg');
-
-  }
+ 
 
   Widget _themeColor() {
     return buildListMenuItem(context, Icons.color_lens, '主题颜色', () {

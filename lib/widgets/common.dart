@@ -34,6 +34,7 @@ Widget buildImageWithDel(_image, Function fun) {
 
 
 
+
 class SoundWidget extends StatefulWidget {
   final Function function;
   final SelectFile file;
@@ -137,4 +138,94 @@ class SelectFile {
 
   SelectFile({this.file, this.type, this.duration});
 }
+
+
+class SoundWidget2 extends StatefulWidget {
+
+  final String path;
+  SoundWidget2(this.path);
+  @override
+  _SoundWidgetState2 createState() => _SoundWidgetState2();
+}
+
+class _SoundWidgetState2 extends State<SoundWidget2> {
+  bool _playing = false;
+  AudioPlayer audioPlayer = AudioPlayer();
+  StreamSubscription _playerCompleteSubscription;
+
+  @override
+  void initState() {
+    if (Platform.isIOS) {
+        // (Optional) listen for notification updates in the background
+        audioPlayer.startHeadlessService();
+
+    
+      }
+    _playerCompleteSubscription =
+        audioPlayer.onPlayerCompletion.listen((event) {
+      print('complete');
+      setState(() {
+        _playing = false;
+      });
+    });
+    super.initState();
+  }
+  @override
+  void dispose() {
+    print('dispose ');
+    audioPlayer.dispose();
+    _playerCompleteSubscription?.cancel();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+    //fit: StackFit.expand,
+    alignment: Alignment.topRight,
+    children: <Widget>[
+      Container(
+        margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
+        width: ScreenUtil().setWidth(165),
+        height: ScreenUtil().setHeight(165),
+      
+        decoration: new BoxDecoration(
+        //背景
+        color: Colors.blue,
+        //设置四周圆角 角度
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        //设置四周边框
+        border: new Border.all(width: 1, color: Colors.blue),
+        ),
+      ),
+      Positioned(
+        left: ScreenUtil().setWidth(65),
+        top: ScreenUtil().setHeight(60),
+        child: InkWell(
+          child: Icon(_playing?Icons.stop:Icons.play_arrow, color: Colors.white,size: 25,),
+          onTap: () {
+            if(_playing) {
+              audioPlayer.stop();
+            } else {
+              print("play " + widget.path);
+              audioPlayer.play(widget.path);
+              
+            }
+            setState(() {
+              _playing = !_playing;
+            });
+          },
+        ),
+      ),
+      Positioned(
+        left: ScreenUtil().setWidth(50),
+        top: ScreenUtil().setHeight(120),
+        child: Text('03:00', style: TextStyle(color: Colors.white),),
+      )
+    ],
+  );
+  }
+}
+
 

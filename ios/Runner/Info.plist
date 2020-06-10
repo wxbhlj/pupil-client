@@ -52,6 +52,13 @@
 	<!--Mic-->
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Can We Use Your Microphone Please</string>
+	<!--play music-->
+	<key>com.apple.security.network.client</key>
+	<true/><key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 
 </dict>
 </plist>

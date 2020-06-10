@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class PreviewImagesWidget extends StatefulWidget {
   ///图片Lst
-  final File file;
+  final String file;
 
   ///初始展示页数。默认0
   final int initialPage;
@@ -66,7 +67,11 @@ class _PreviewImagesWidgetState extends State<PreviewImagesWidget> {
               scrollPhysics: const BouncingScrollPhysics(),
               builder: (BuildContext context, int index) {
                 return PhotoViewGalleryPageOptions(
-                  imageProvider: Image.file(widget.file).image,
+                  imageProvider: 
+                  widget.file.startsWith('http')?
+                  Image.network(widget.file).image
+                  :
+                  Image.file(LocalFileSystem().file(widget.file)).image,
                 );
               },
               itemCount: 1,

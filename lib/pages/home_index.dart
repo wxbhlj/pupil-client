@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pupil/common/routers.dart';
+import 'package:pupil/common/global.dart';
+import 'package:pupil/common/http_util.dart';
 
 class HomeIndexPage extends StatefulWidget {
   @override
@@ -12,40 +13,36 @@ class HomeIndexPage extends StatefulWidget {
 
 class _HomeIndexPageState extends State<HomeIndexPage>
     with SingleTickerProviderStateMixin {
-  List items = new List();
-
+  
+  var tasks;
   @override
   void initState() {
     super.initState();
-    items.add({'title': '数学卷13.2'});
-    items.add({'title': '数学卷13.3'});
+    _getData().then((resp) {
+      setState(() {
+        tasks = resp['data'];
+        print(tasks);
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('首页'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.golf_course),
-            onPressed: () {
-              Routers.navigateTo(context, Routers.taskSubmittedPage);
-            },
-          )
-        ],
+        title: Text(Global.profile.user.nick),
       ),
       body: Column(
         children: <Widget>[
           _buildLineChart(),
           Container(
-            margin: EdgeInsets.only(left: 10, top: 20),
+            margin: EdgeInsets.only(left: 15, top: 20),
             alignment: Alignment.topLeft,
             child: Text(
-              '作业复习',
+              '作业列表',
               style: TextStyle(
                   color: Colors.black,
-                  fontSize: 28,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2),
             ),
@@ -60,17 +57,21 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   }
 
   Widget _buildTaskList() {
+    if(tasks == null) {
+      return Text('');
+    }
     return Container(
       width: ScreenUtil().setWidth(750),
       child: ListView.separated(
-        itemCount: items.length,
+        itemCount: tasks.length,
         itemBuilder: (BuildContext context, int index) {
-          var item = items[index];
+          var item = tasks[index];
           return ListTile(
             title: Text(
               item['title'],
               overflow: TextOverflow.ellipsis,
             ),
+            subtitle: Text(item['course']),
             onTap: () {},
             trailing: Icon(Icons.keyboard_arrow_right),
           );
@@ -83,6 +84,12 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         },
       ),
     );
+  }
+
+   Future _getData() async {
+    
+    return HttpUtil.getInstance()
+        .get("api/v1/ums/task/list?status=ASSIGNED&userId=" + Global.profile.user.userId.toString(), );
   }
 
   Widget _buildLineChart() {

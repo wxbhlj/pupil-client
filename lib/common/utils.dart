@@ -7,6 +7,7 @@ class Utils {
         .hasMatch(str);
   }
 
+  //yyyy-MM-dd HH:mm
   static String formatDate(int time) {
     if (time == null) {
       return "";
@@ -15,7 +16,15 @@ class Utils {
       return "${date.year.toString()}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
     }
   }
-
+  //HH:mm
+  static String formatDate4(int time) {
+    if (time == null) {
+      return "";
+    } else {
+      DateTime date = new DateTime.fromMillisecondsSinceEpoch(time);
+      return "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+    }
+  }
   static String formatDate2(int time) {
     if (time == null) {
       return "";
@@ -25,9 +34,12 @@ class Utils {
     }
   }
 
-  static String twoDigits(int n) {
+  static String twoDigits2(int n) {
       if (n >= 10) return "$n";
       return "0$n";
+  }
+  static String formatTime(int seconds) {
+    return twoDigits2(seconds~/60) + ":" + twoDigits2(seconds%60);
   }
 
 
