@@ -2,11 +2,38 @@
 
 import 'package:flutter/material.dart';
 import 'package:pupil/common/global.dart';
+import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 import 'package:pupil/common/utils.dart';
 
-class TaskCheckListPage extends StatelessWidget {
+class TaskCheckListPage extends StatefulWidget {
+  @override
+  _TaskCheckListPageState createState() => _TaskCheckListPageState();
+}
+
+class _TaskCheckListPageState extends State<TaskCheckListPage> {
+  var _eventSubscription;
+  @override
+  void initState() {
+    _eventSubscription =
+        GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
+      print("onEvent:" + event.eventType);
+      if (event.eventType == EVENT_REFRESH_CHECKLIST) {
+        setState(() {
+          
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,5 +90,4 @@ class TaskCheckListPage extends StatelessWidget {
       },
     );
   }
-
 }

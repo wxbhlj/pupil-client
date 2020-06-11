@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pupil/common/global.dart';
+import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 import 'package:pupil/widgets/common.dart';
@@ -230,6 +231,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       Navigator.pop(context);
       print(val);
       if (val['code'] == '10000') {
+        GlobalEventBus.fireRefreshCheckList();
         Navigator.pop(context);
       } else {
         Fluttertoast.showToast(

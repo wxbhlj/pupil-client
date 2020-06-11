@@ -4,6 +4,7 @@ import 'package:pupil/pages/setting/settings.dart';
 import 'package:pupil/pages/task_assign.dart';
 import 'package:pupil/pages/task_check_detail.dart';
 import 'package:pupil/pages/task_check_list.dart';
+import 'package:pupil/pages/task_doit.dart';
 import 'package:pupil/pages/task_new.dart';
 import 'package:pupil/pages/task_submitted.dart';
 
@@ -26,6 +27,7 @@ class Routers {
   static String taskCheckListPage = '/taskCheckListPage';
   static String taskCheckDetailPage = '/taskCheckDetailPage';
   static String taskAssignPage = '/taskAssignPage';
+  static String taskDoitPage = '/taskDoitPage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -44,9 +46,8 @@ class Routers {
     router.define(taskCheckListPage, handler:_buildHandler(TaskCheckListPage()));
     router.define(taskCheckDetailPage, handler:_buildHandler(TaskCheckDetailPage()));
     router.define(taskAssignPage, handler:_buildHandler(TaskAssignPage()));
+    router.define(taskDoitPage, handler:_buildHandler(TaskDoitPage()));
 
-    
-    
   }
 
   static Handler _buildHandler(Widget widget) {

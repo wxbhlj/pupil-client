@@ -9,51 +9,43 @@ import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pupil/common/global.dart';
+import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 import 'package:pupil/common/utils.dart';
+import 'package:pupil/pages/task_new.dart';
 import 'package:pupil/widgets/common.dart';
 import 'package:pupil/widgets/dialog.dart';
+import 'package:pupil/widgets/input.dart';
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
 import 'package:pupil/widgets/recorder.dart';
 import 'package:pupil/widgets/showtime_widget.dart';
 import 'package:wakelock/wakelock.dart';
 
-class TaskNewPage extends StatefulWidget {
+class TaskDoitPage extends StatefulWidget {
   @override
-  _TaskNewPageState createState() => _TaskNewPageState();
+  _TaskDoitPageState createState() => _TaskDoitPageState();
 }
 
-class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
+class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver {
   int _seconds = 0;
   Timer _countdownTimer;
   int _outTime = 0;
   DateTime pausedTime;
   List<SelectFile> files = List();
+  int _taskId;
+  String _taskTitle;
 
-  List<String> _courseChips = <String>['语文', '数学', '英语', '其它'];
-  String _course = '';
-
-  List<String> _typeChips = <String>[
-    '默写',
-    '抄写',
-    '复习',
-    '预习',
-    '订正',
-    '做试卷',
-    '练习册',
-    '背诵',
-    '其它'
-  ];
-  String _type = '';
+ 
 
   GlobalKey<ShowTimerState> _showTimerState = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-
+    _taskId = Global.prefs.getInt('_taskId');
+    _taskTitle = Global.prefs.getString('_taskTitle');
     WidgetsBinding.instance.addObserver(this);
     _setTimer();
   }
@@ -122,8 +114,11 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            _buildCourseWidget(),
-            _buildTypeWidget(),
+            Container(
+              width: ScreenUtil().setWidth(750),
+              margin: EdgeInsets.all(20),
+              child: Text(_taskTitle, style: TextStyle(fontSize: 28),),
+            ),
             Divider(),
             _buildContentWidget(),
             SizedBox(
@@ -142,15 +137,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
       padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
       child: Column(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              //Icon(Icons.timer, color: Theme.of(context).accentColor),
-              Text(
-                ' 作业内容',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              )
-            ],
-          ),
+     
           Container(
             width: ScreenUtil().setWidth(750),
             margin: EdgeInsets.only(top: 0),
@@ -312,103 +299,9 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildCourseWidget() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              //Icon(Icons.timer, color: Theme.of(context).accentColor),
-              Text(
-                ' 选择课程',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              )
-            ],
-          ),
-          Container(
-            width: ScreenUtil().setWidth(750),
-            margin: EdgeInsets.only(top: 0),
-            child: Wrap(
-              spacing: 0,
-              alignment: WrapAlignment.start,
-              children: _courseWidgets.toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Iterable<Widget> get _courseWidgets sync* {
-    for (String chip in _courseChips) {
-      yield Padding(
-        padding: EdgeInsets.only(left: 0, right: 10),
-        child: ChoiceChip(
-          backgroundColor: Colors.black12,
-          label: Text(chip),
-          labelStyle: TextStyle(fontWeight: FontWeight.bold),
-          labelPadding: EdgeInsets.only(left: 10, right: 10),
-          onSelected: (val) {
-            setState(() {
-              _course = val ? chip : _course;
-            });
-          },
-          selectedColor: Theme.of(context).accentColor,
-          selected: _course == chip,
-        ),
-      );
-    }
-  }
 
-  Widget _buildTypeWidget() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              //Icon(Icons.timer, color: Theme.of(context).accentColor),
-              Text(
-                ' 作业类型',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              )
-            ],
-          ),
-          Container(
-            width: ScreenUtil().setWidth(750),
-            margin: EdgeInsets.only(top: 0),
-            child: Wrap(
-              spacing: 0,
-              alignment: WrapAlignment.start,
-              children: _typeWidgets.toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Iterable<Widget> get _typeWidgets sync* {
-    for (String chip in _typeChips) {
-      yield Padding(
-        padding: EdgeInsets.only(left: 0, right: 10),
-        child: ChoiceChip(
-          backgroundColor: Colors.black12,
-          label: Text(chip),
-          labelStyle: TextStyle(fontWeight: FontWeight.bold),
-          labelPadding: EdgeInsets.only(left: 10, right: 10),
-          onSelected: (val) {
-            setState(() {
-              _type = val ? chip : _type;
-            });
-          },
-          selectedColor: Theme.of(context).accentColor,
-          selected: _type == chip,
-        ),
-      );
-    }
-  }
 
   _submit() {
 
@@ -427,14 +320,10 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
         });
 
     FormData formData = new FormData.fromMap({
-      "classification": _type,
-      "course": _course,
+      "id":_taskId,
       "outTime": _outTime,
-      "score": 0,
       "spendTime": _seconds + _outTime,
       "status": "UPLOAD",
-      "title": _course + _type,
-      "userId": Global.profile.user.userId
     });
     String url = "/api/v1/ums/task";
     if (files.length > 0) {
@@ -453,6 +342,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
       if (val['code'] == '10000') {
 
         Routers.router.navigateTo(context, Routers.taskSubmittedPage, replace: true);
+        GlobalEventBus.fireRefreshTodoList();
       } else {
         Fluttertoast.showToast(
             msg: val['message'], gravity: ToastGravity.CENTER);
@@ -460,3 +350,4 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     });
   }
 }
+
