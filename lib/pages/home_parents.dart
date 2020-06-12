@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 
@@ -30,13 +31,17 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('家长操作'),
+        title: Text('家长中心'),
       ),
       body: Column(
         children: <Widget>[
       
           _correcting(),
-          _exam(),
+          _arrangeWork(),
+          _recordWork(),
+          SizedBox(
+            height: ScreenUtil().setHeight(20),
+          ),
           _settings(),
 
 
@@ -56,9 +61,15 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
     });
   }
 
-  Widget _exam() {
+  Widget _arrangeWork() {
     return buildListMenuItem(context, Icons.assignment, '布置作业', () {
       Routers.navigateTo(context, Routers.taskAssignPage);
+    });
+  }
+
+  Widget _recordWork() {
+    return buildListMenuItem(context, Icons.create, '补记作业', () {
+      Routers.navigateTo(context, Routers.taskCreatePage);
     });
   }
 

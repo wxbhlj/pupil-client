@@ -65,7 +65,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
             margin: EdgeInsets.only(left: 15, top: 20),
             alignment: Alignment.topLeft,
             child: Text(
-              '作业列表',
+              '今日作业',
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 16,

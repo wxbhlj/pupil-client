@@ -21,8 +21,8 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
 
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
-  //TextEditingController _commonsController =
-  //    TextEditingController.fromValue(TextEditingValue(text: ''));
+  TextEditingController _timeController =
+      TextEditingController.fromValue(TextEditingValue(text: ''));
   double score = 60;
   var data;
   @override
@@ -44,7 +44,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       appBar: AppBar(
         title: Text('作业详情'),
       ),
-      body: _buildBody(data),
+      body: SingleChildScrollView(
+        child: _buildBody(data),
+      ),
+      resizeToAvoidBottomInset:false,
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -90,6 +93,11 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     var task = data['task'];
     var attachments = data['attachments'];
     _titleController.value = TextEditingValue(text: task['title']);
+    if(_timeController.text.length == 0) {
+      _timeController.value =
+        TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
+    }
+    
     return Container(
       margin: EdgeInsets.only(
           left: ScreenUtil().setWidth(30),
@@ -102,7 +110,20 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           Divider(
             height: ScreenUtil().setHeight(20),
           ),
-          buildInput(_titleController, null, '标题', false),
+          buildInputWithTitle(
+              _titleController, '作业内容', '标题', false, null, TextInputType.text),
+          
+          Stack(
+            children: <Widget>[
+              buildInputWithTitle(
+              _timeController, '作业耗时', '', false, null, TextInputType.number),
+              Positioned(
+                right: 0,
+                top: 15,
+                child: Text('分钟'),
+              )
+            ],
+          ),
           //buildInput(_commonsController, null, '作业评语', false),
           _buildSlider(),
         ],
@@ -111,6 +132,9 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   }
 
   _buildTimeInfo(task) {
+    if (task['outTime'] < 60) {
+      return Text('');
+    }
     return Container(
       width: ScreenUtil().setWidth(710),
       margin: EdgeInsets.only(
@@ -118,8 +142,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text('作业耗时：' + (task['spendTime'] ~/ 60).toString() + "分钟"),
-          Text('离开APP：' + (task['outTime'] ~/ 60).toString() + "分钟"),
+          Text(
+            '异常时间' + (task['outTime'] ~/ 60).toString() + "分钟",
+            style: TextStyle(color: Colors.red),
+          ),
         ],
       ),
     );
@@ -222,8 +248,13 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           );
         });
 
-    var formData = 
-        {"comments": "", "id": data['task']['id'], "score": score, "title": _titleController.text};
+    var formData = {
+      "comments": "",
+      "id": data['task']['id'],
+      "score": score,
+      "title": _titleController.text,
+      "spendTime": int.parse(_timeController.text) * 60
+    };
     String url = "/api/v1/ums/task/checked";
 
     print(formData);

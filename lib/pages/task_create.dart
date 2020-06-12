@@ -9,142 +9,95 @@ import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pupil/common/global.dart';
-import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
-import 'package:pupil/common/utils.dart';
-import 'package:pupil/pages/task_new.dart';
+
 import 'package:pupil/widgets/common.dart';
-import 'package:pupil/widgets/dialog.dart';
 import 'package:pupil/widgets/input.dart';
+
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
 import 'package:pupil/widgets/recorder.dart';
 import 'package:pupil/widgets/showtime_widget.dart';
 import 'package:wakelock/wakelock.dart';
 
-class TaskDoitPage extends StatefulWidget {
+class TaskCreatePage extends StatefulWidget {
   @override
-  _TaskDoitPageState createState() => _TaskDoitPageState();
+  _TaskCreatePageState createState() => _TaskCreatePageState();
 }
 
-class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver {
-  int _seconds = 0;
-  Timer _countdownTimer;
-  int _outTime = 0;
-  DateTime pausedTime;
+class _TaskCreatePageState extends State<TaskCreatePage> {
+
   List<SelectFile> files = List();
-  int _taskId;
-  String _taskTitle;
 
- 
+  List<String> _courseChips = <String>['语文', '数学', '英语', '其它'];
+  String _course = '';
+  double score = 60;
+  
 
-  GlobalKey<ShowTimerState> _showTimerState = GlobalKey();
+  TextEditingController _titleController =
+      TextEditingController.fromValue(TextEditingValue(text: ''));
+  TextEditingController _timeController =
+      TextEditingController.fromValue(TextEditingValue(text: ''));
 
   @override
   void initState() {
     super.initState();
-    _taskId = Global.prefs.getInt('_taskId');
-    _taskTitle = Global.prefs.getString('_taskTitle');
-    WidgetsBinding.instance.addObserver(this);
-    _setTimer();
   }
 
   @override
   void dispose() {
-    _cancelTimer();
-    Wakelock.disable();
     super.dispose();
-  }
-
-  _cancelTimer() {
-    _countdownTimer?.cancel();
-    _countdownTimer = null;
-  }
-
-  _setTimer() {
-    _countdownTimer = new Timer.periodic(new Duration(seconds: 1), (timer) {
-      _seconds++;
-      try{
-        _showTimerState.currentState.refresh(_seconds, _outTime);
-      } catch (e) {}
-      
-    });
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("--" + state.toString());
-    switch (state) {
-      //case AppLifecycleState.inactive: // 处于这种状态的应用程序应该假设它们可能在任何时候暂停。
-      //  print('Inactive....');
-      //  break;
-
-      case AppLifecycleState.resumed: // 应用程序可见，前台
-        if (_countdownTimer == null) {
-          _setTimer();
-        }
-        print(pausedTime);
-        if (pausedTime != null) {
-          _outTime += DateTime.now().difference(pausedTime).inSeconds;
-          pausedTime = null;
-        }
-        Wakelock.enable();
-        print('前台可见');
-        break;
-      case AppLifecycleState.paused: // 应用程序不可见，后台
-        if (_countdownTimer != null) {
-          _cancelTimer();
-        }
-        pausedTime = DateTime.now();
-        Wakelock.disable();
-        break;
-      //case AppLifecycleState.detached: // 申请将暂时暂停
-      //  print('detached......');
-      // break;
-      default: // 申请将暂时暂停
-        break;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ShowTimer(_showTimerState),
+      appBar: AppBar(
+        title: Text('补记作业'),
+      ),
       body: SingleChildScrollView(
-        child: Column(
+        child: Container(
+          margin: EdgeInsets.only(left: 20, top: 10, right: 20),
+          child: Column(
           children: <Widget>[
-            Container(
-              width: ScreenUtil().setWidth(750),
-              margin: EdgeInsets.all(20),
-              child: Text(_taskTitle, style: TextStyle(fontSize: 28),),
+            _buildCourseWidget(),
+            buildInputWithTitle(_titleController, '作业内容', '标题', false, null,
+                TextInputType.text),
+            Stack(
+              children: <Widget>[
+                buildInputWithTitle(_timeController, '作业耗时', '', false, null,
+                    TextInputType.number),
+                Positioned(
+                  right: 0,
+                  top: 15,
+                  child: Text('分钟'),
+                )
+              ],
             ),
-            Divider(),
+            _buildSlider(),
             _buildContentWidget(),
             SizedBox(
               height: ScreenUtil().setHeight(200),
             )
           ],
         ),
+        ),
       ),
+      resizeToAvoidBottomInset:false,
       floatingActionButton: _buildFloatingActionButtion(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _buildContentWidget() {
     return Container(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-      child: Column(
-        children: <Widget>[
-     
-          Container(
+      padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
+      child: Container(
             width: ScreenUtil().setWidth(750),
             margin: EdgeInsets.only(top: 0),
             child: _buildImages(),
           ),
-        ],
-      ),
     );
   }
 
@@ -299,17 +252,93 @@ class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver
     );
   }
 
+  Widget _buildCourseWidget() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(0, 20, 0, 10),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              //Icon(Icons.timer, color: Theme.of(context).accentColor),
+              Text(
+                ' 选择课程',
+                style: TextStyle(fontWeight: FontWeight.w400),
+              )
+            ],
+          ),
+          Container(
+            width: ScreenUtil().setWidth(750),
+            margin: EdgeInsets.only(top: 0),
+            child: Wrap(
+              spacing: 0,
+              alignment: WrapAlignment.start,
+              children: _courseWidgets.toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
+  Iterable<Widget> get _courseWidgets sync* {
+    for (String chip in _courseChips) {
+      yield Padding(
+        padding: EdgeInsets.only(left: 0, right: 10),
+        child: ChoiceChip(
+          backgroundColor: Colors.black12,
+          label: Text(chip),
+          labelStyle: TextStyle(fontWeight: FontWeight.bold),
+          labelPadding: EdgeInsets.only(left: 10, right: 10),
+          onSelected: (val) {
+            setState(() {
+              _course = val ? chip : _course;
+            });
+          },
+          selectedColor: Theme.of(context).accentColor,
+          selected: _course == chip,
+        ),
+      );
+    }
+  }
+
+  _buildSlider() {
+    return Container(
+        width: ScreenUtil().setWidth(750),
+        margin: EdgeInsets.only(top: 20, left: 0),
+        child: Card(
+          child: Stack(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(left: ScreenUtil().setWidth(120)),
+                child: Slider(
+                  label: '得分 ${score.toInt()}',
+                  max: 100,
+                  min: 0,
+                  divisions: 100,
+                  activeColor: Colors.blue,
+                  inactiveColor: Colors.grey,
+                  value: score,
+                  onChanged: (double v) {
+                    setState(() {
+                      this.score = v;
+                    });
+                  },
+                ),
+              ),
+              Positioned(
+                left: 10,
+                top: 15,
+                child: Text('得分:' + score.toInt().toString()),
+              )
+            ],
+          ),
+        ));
+  }
 
 
 
   _submit() {
-
-    if(_seconds < 60*3) {
-       Fluttertoast.showToast(
-            msg: '时间太短(少于3分钟)，请稍后再试', gravity: ToastGravity.CENTER);
-      //return;
-    }
+ 
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -320,10 +349,14 @@ class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver
         });
 
     FormData formData = new FormData.fromMap({
-      "id":_taskId,
-      "outTime": _outTime,
-      "spendTime": _seconds + _outTime,
-      "status": "UPLOAD",
+      "classification": '',
+      "course": _course,
+      "outTime": 0,
+      "score": score.toInt(),
+      "spendTime": int.parse(_timeController.text)*60,
+      "status": "CHECKED",
+      "title": _titleController.text,
+      "userId": Global.profile.user.userId
     });
     String url = "/api/v1/ums/task";
     if (files.length > 0) {
@@ -340,9 +373,8 @@ class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver
       Navigator.pop(context);
       print(val);
       if (val['code'] == '10000') {
-
-        Routers.router.navigateTo(context, Routers.taskSubmittedPage, replace: true);
-        GlobalEventBus.fireRefreshTodoList();
+        Routers.router
+            .navigateTo(context, Routers.taskSubmittedPage, replace: true);
       } else {
         Fluttertoast.showToast(
             msg: val['message'], gravity: ToastGravity.CENTER);
@@ -350,4 +382,3 @@ class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver
     });
   }
 }
-

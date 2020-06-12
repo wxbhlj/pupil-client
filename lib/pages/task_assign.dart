@@ -52,7 +52,16 @@ class _TaskAssignPageState extends State<TaskAssignPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('布置作业'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.save, color:Colors.white),
+            onPressed: () {
+              _submit();
+            },
+          )
+        ],
       ),
+    
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -66,35 +75,7 @@ class _TaskAssignPageState extends State<TaskAssignPage> {
           ],
         ),
       ),
-      floatingActionButton: _buildFloatingActionButtion(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-
-  Widget _buildFloatingActionButtion(context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
-      width: ScreenUtil().setWidth(750),
-      height: ScreenUtil().setHeight(100),
-      child: Column(
-        children: <Widget>[_buildSubmitButton()],
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return Container(
-      width: ScreenUtil().setWidth(750),
-      child: RaisedButton(
-        child: Text(
-          '布置作业',
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-        color: Theme.of(context).primaryColor,
-        onPressed: () {
-          _submit();
-        },
-      ),
+    
     );
   }
 

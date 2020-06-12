@@ -290,7 +290,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.gallery, maxWidth: 480, maxHeight: 720);
+        source: ImageSource.camera, maxWidth: 480, maxHeight: 720);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});

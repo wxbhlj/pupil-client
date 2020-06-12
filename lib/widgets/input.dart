@@ -15,16 +15,16 @@ Widget buildClearButton(TextEditingController c) {
 
 
 Widget buildInputWithTitle(
-    TextEditingController controller, title, String text, bool readonly, Function fun) {
+    TextEditingController controller, title, String text, bool readonly, Function fun, TextInputType type) {
   return Row(
     children: <Widget>[
       Container(
         width: ScreenUtil().setWidth(160),
-        child: Text(title + ':', style: TextStyle(fontSize: 16, color: Colors.black45),),
+        child: Text(title + ':', style: TextStyle(fontSize: 14, color: Colors.black45),),
       ),
       Expanded(
         child: TextField(
-            keyboardType: TextInputType.text,
+            keyboardType: type,
             controller: controller,
             enabled: !readonly,
             decoration: InputDecoration(hintText: text),
