@@ -8,6 +8,7 @@ const String EVENT_REFRESH_TODOLIST = "EVENT_REFRESH_TODOLIST";
 
 const String EVENT_REFRESH_CHECKLIST = "EVENT_REFRESH_CHECKLIST";
 
+const String EVENT_NICK_CHANGED = "EVENT_NICK_CHANGED";
 
 
 class GlobalEventBus{
@@ -47,6 +48,12 @@ class GlobalEventBus{
     print("fire fireRefreshCheckList");
     _getInstance().event.fire(CommonEventWithType(EVENT_REFRESH_CHECKLIST,));
   }
+
+  static void fireNickChanged() {
+    print("fire fireNickChanged");
+    _getInstance().event.fire(CommonEventWithType(EVENT_NICK_CHANGED,));
+  }
+
 
 
  

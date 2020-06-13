@@ -85,9 +85,9 @@ class _HomePageState extends State<HomePage> {
   Widget _tabItem(int idx, IconData icon, String label) {
     return InkWell(
       child: Container(
-        margin: EdgeInsets.only(top: ScreenUtil().setHeight(5)),
+        margin: EdgeInsets.only(top: ScreenUtil().setHeight(15)),
         width: ScreenUtil().setWidth(120),
-        height: ScreenUtil().setHeight(82),
+        height: ScreenUtil().setHeight(100),
         child: Column(
           children: <Widget>[
             Icon(icon, color: _tabColors(idx)),

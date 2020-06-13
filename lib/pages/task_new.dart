@@ -415,7 +415,12 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     if(_seconds < 60*3) {
        Fluttertoast.showToast(
             msg: '时间太短(少于3分钟)，请稍后再试', gravity: ToastGravity.CENTER);
-      //return;
+      return;
+    }
+    if(_course == '' || _type == '') {
+      Fluttertoast.showToast(
+            msg: '请选择课程和作业类型', gravity: ToastGravity.CENTER);
+      return;
     }
     showDialog(
         context: context,

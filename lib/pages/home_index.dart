@@ -55,9 +55,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(Global.profile.user.nick),
-      ),
+      
       body: Column(
         children: <Widget>[
           LineChartWidget(),

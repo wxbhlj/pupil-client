@@ -308,7 +308,7 @@ class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver
     if(_seconds < 60*3) {
        Fluttertoast.showToast(
             msg: '时间太短(少于3分钟)，请稍后再试', gravity: ToastGravity.CENTER);
-      //return;
+      return;
     }
     showDialog(
         context: context,

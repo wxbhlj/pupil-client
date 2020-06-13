@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluro/fluro.dart';
+import 'package:pupil/pages/setting/nickname.dart';
+import 'package:pupil/pages/setting/password.dart';
 import 'package:pupil/pages/setting/settings.dart';
 import 'package:pupil/pages/task_assign.dart';
 import 'package:pupil/pages/task_check_detail.dart';
@@ -30,6 +32,8 @@ class Routers {
   static String taskAssignPage = '/taskAssignPage';
   static String taskDoitPage = '/taskDoitPage';
   static String taskCreatePage = '/taskCreatePage';
+  static String nicknameSettingPage = '/nicknameSettingPage';
+  static String passwordSettingPage = '/passwordSettingPage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -50,6 +54,8 @@ class Routers {
     router.define(taskAssignPage, handler:_buildHandler(TaskAssignPage()));
     router.define(taskDoitPage, handler:_buildHandler(TaskDoitPage()));
     router.define(taskCreatePage, handler:_buildHandler(TaskCreatePage()));
+    router.define(nicknameSettingPage, handler:_buildHandler(NicknameSettingPage()));
+    router.define(passwordSettingPage, handler:_buildHandler(PasswordSettingPage()));
 
 
   }

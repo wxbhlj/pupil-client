@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget buildListMenuItem(context, IconData icon, String title, Function onTap) {
+Widget buildListMenuItem(context, IconData icon, String title, Function onTap, {String title2 = ''}) {
     return Container(
       margin: EdgeInsets.only(top: 0),
       decoration: BoxDecoration(
@@ -11,7 +11,14 @@ Widget buildListMenuItem(context, IconData icon, String title, Function onTap) {
           icon,
           color: Theme.of(context).accentColor,
         ),
-        title: Text(title),
+        title: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(title),
+            ),
+            Text(title2, style:TextStyle(color: Colors.grey))
+          ],
+        ),
         trailing: Icon(Icons.keyboard_arrow_right),
         onTap: onTap,
       ),
