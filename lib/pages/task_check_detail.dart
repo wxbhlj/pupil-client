@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pupil/common/global.dart';
@@ -45,9 +47,16 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         title: Text('作业详情'),
       ),
       body: SingleChildScrollView(
-        child: _buildBody(data),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            // 触摸收起键盘
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          child: _buildBody(data),
+        ),
       ),
-      resizeToAvoidBottomInset:false,
+      resizeToAvoidBottomInset: false,
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -93,16 +102,16 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     var task = data['task'];
     var attachments = data['attachments'];
     _titleController.value = TextEditingValue(text: task['title']);
-    if(_timeController.text.length == 0) {
+    if (_timeController.text.length == 0) {
       _timeController.value =
-        TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
+          TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
     }
-    
+
     return Container(
       margin: EdgeInsets.only(
-          left: ScreenUtil().setWidth(30),
-          right: ScreenUtil().setWidth(30),
-          top: ScreenUtil().setHeight(20)),
+          left: 20,
+          right: 20,
+          top: 20,),
       child: Column(
         children: <Widget>[
           _buildAttachment(attachments),
@@ -112,11 +121,11 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           ),
           buildInputWithTitle(
               _titleController, '作业内容', '标题', false, null, TextInputType.text),
-          
+
           Stack(
             children: <Widget>[
-              buildInputWithTitle(
-              _timeController, '作业耗时', '', false, null, TextInputType.number),
+              buildInputWithTitle(_timeController, '作业耗时', '', false, null,
+                  TextInputType.number),
               Positioned(
                 right: 0,
                 top: 15,
@@ -125,7 +134,15 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
             ],
           ),
           //buildInput(_commonsController, null, '作业评语', false),
-          _buildSlider(),
+          //_buildSlider(),
+          Padding(
+            padding: EdgeInsets.only(top:30),
+            child: buildStarInput((ret){
+            setState(() { 
+              this.score = ret * 20;
+            });
+          }),
+          )
         ],
       ),
     );
@@ -149,40 +166,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         ],
       ),
     );
-  }
-
-  _buildSlider() {
-    return Container(
-        width: ScreenUtil().setWidth(750),
-        margin: EdgeInsets.only(top: 20, left: 0),
-        child: Card(
-          child: Stack(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(left: ScreenUtil().setWidth(120)),
-                child: Slider(
-                  label: '得分 ${score.toInt()}',
-                  max: 100,
-                  min: 0,
-                  divisions: 100,
-                  activeColor: Colors.blue,
-                  inactiveColor: Colors.grey,
-                  value: this.score,
-                  onChanged: (double v) {
-                    setState(() {
-                      this.score = v;
-                    });
-                  },
-                ),
-              ),
-              Positioned(
-                left: 10,
-                top: 15,
-                child: Text('得分:' + score.toInt().toString()),
-              )
-            ],
-          ),
-        ));
   }
 
   Widget _buildAttachment(attachments) {
@@ -221,7 +204,12 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         width: ScreenUtil().setWidth(165),
         height: ScreenUtil().setHeight(165),
         child: ClipRRect(
-          child: Image.network(attach['url'], fit: BoxFit.fill),
+          child: CachedNetworkImage(
+            imageUrl: attach['url'],
+            fit: BoxFit.fill,
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
           borderRadius: BorderRadius.circular(8),
         ),
       ),
@@ -237,6 +225,8 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       child: SoundWidget2(attach['url']),
     );
   }
+
+  
 
   _submit() {
     showDialog(

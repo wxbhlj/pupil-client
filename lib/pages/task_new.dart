@@ -290,7 +290,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 480, maxHeight: 720);
+        source: ImageSource.camera, maxWidth: 640, maxHeight: 960);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});
@@ -412,7 +412,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   _submit() {
 
-    if(_seconds < 60*3) {
+    if(_seconds < 3) {
        Fluttertoast.showToast(
             msg: '时间太短(少于3分钟)，请稍后再试', gravity: ToastGravity.CENTER);
       return;

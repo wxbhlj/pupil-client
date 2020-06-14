@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -6,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'global.dart';
 import 'global_event.dart';
-
 
 class HttpUtil {
   static HttpUtil instance;
@@ -28,7 +26,7 @@ class HttpUtil {
     options = new BaseOptions(
       //请求基地址,可以包含子路径
       baseUrl: "http://localhost:9090/",
-      //baseUrl: "http://www.shellsports.cn:8081/", 
+      //baseUrl: "http://www.shellsports.cn:8081/",
       //连接服务器超时时间，单位是毫秒.
       connectTimeout: 10000,
       //响应流上前后两次接受到数据的间隔，单位为毫秒。
@@ -49,18 +47,19 @@ class HttpUtil {
     dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) {
       print("请求之前");
-      print(options.baseUrl); 
+      print(options.baseUrl);
       if (Global.profile.user != null) {
         options.headers['Authorization'] = Global.profile.user.token;
       }
       // Do something before request is sent
       return options; //continue
-    }, onResponse: (Response response) { 
+    }, onResponse: (Response response) {
       print("响应之前");
 
       if (response.data != null) {
         var json = (response.data);
-        if (json != null && json.runtimeType.toString() != 'String' &&
+        if (json != null &&
+            json.runtimeType.toString() != 'String' &&
             json['code'] != null &&
             json['code'].toString() == '99999') {
           GlobalEventBus.fireTokenError();
@@ -72,10 +71,9 @@ class HttpUtil {
     }, onError: (DioError e) {
       print("错误之前");
       // Do something with response error
-      return e; //continue
+      return e;//continue
     }));
   }
-
 
   /*
    * get请求
@@ -95,11 +93,24 @@ class HttpUtil {
 
     } on DioError catch (e) {
       print('get error---------$e');
-      Fluttertoast.showToast(
-            msg: 'get error---------$e', gravity: ToastGravity.CENTER);
       formatError(e);
+      
     }
-    return response.data;
+    return _response(response);
+  }
+
+  _response(response) {
+    if(response != null) {
+      return response.data;
+    } else {
+      return {
+        "code": "9999",
+        "data": null,
+        "date": 0,
+        "message": '网络错误',
+        "status": "Error"
+      };
+    }
   }
 
   /*
@@ -113,8 +124,10 @@ class HttpUtil {
     } on DioError catch (e) {
       print('post error---------$e');
       formatError(e);
+      print("response");
+      print(response);
     }
-    return response.data;
+    return _response(response);
   }
 
   delete(url, {formData}) async {
@@ -126,7 +139,7 @@ class HttpUtil {
       print('post error---------$e');
       formatError(e);
     }
-    return response.data;
+    return _response(response);
   }
 
   put(url, {formData}) async {
@@ -138,7 +151,7 @@ class HttpUtil {
       print('put error---------$e');
       formatError(e);
     }
-    return response.data;
+    return _response(response);
   }
 
   /*

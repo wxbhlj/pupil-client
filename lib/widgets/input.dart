@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Widget buildClearButton(TextEditingController c) {
@@ -49,6 +50,29 @@ Widget buildInput(
     ],
   );
 }
+
+Widget buildStarInput(Function fun) {
+    return RatingBar(
+        initialRating: 3,
+        direction: Axis.horizontal,
+        allowHalfRating: true,
+        itemSize: ScreenUtil().setWidth(100),
+        itemCount: 5,
+        ratingWidget: RatingWidget(
+          full: Icon(Icons.star, color: Colors.orange),
+          half: Icon(
+            Icons.star_half,
+            color: Colors.orange,
+          ),
+          empty: Icon(Icons.star_border, color: Colors.orange),
+        ),
+        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+        onRatingUpdate: (rating) {
+          fun(rating);
+        },
+
+    );
+  }
 
 
 

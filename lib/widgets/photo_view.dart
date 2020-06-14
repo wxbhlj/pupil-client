@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -40,11 +41,7 @@ class _PreviewImagesWidgetState extends State<PreviewImagesWidget> {
     super.initState();
     nowPosition = initialPage;
     pageController = PageController(initialPage: initialPage);
-  
   }
-
- 
-
 
   @override
   Widget build(BuildContext context) {
@@ -61,23 +58,21 @@ class _PreviewImagesWidgetState extends State<PreviewImagesWidget> {
               onPageChanged: (index) {
                 setState(() {
                   nowPosition = index;
-
                 });
               },
               scrollPhysics: const BouncingScrollPhysics(),
               builder: (BuildContext context, int index) {
                 return PhotoViewGalleryPageOptions(
-                  imageProvider: 
-                  widget.file.startsWith('http')?
-                  Image.network(widget.file).image
-                  :
-                  Image.file(LocalFileSystem().file(widget.file)).image,
+                  imageProvider: widget.file.startsWith('http')
+                      ? Image(
+                          image: CachedNetworkImageProvider(widget.file),
+                        ).image
+                      : Image.file(LocalFileSystem().file(widget.file)).image,
                 );
               },
               itemCount: 1,
               pageController: pageController,
             ),
-    
           ],
         ),
       ),

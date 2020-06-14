@@ -27,13 +27,11 @@ class TaskCreatePage extends StatefulWidget {
 }
 
 class _TaskCreatePageState extends State<TaskCreatePage> {
-
   List<SelectFile> files = List();
 
   List<String> _courseChips = <String>['语文', '数学', '英语', '其它'];
   String _course = '';
   double score = 60;
-  
 
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
@@ -56,37 +54,55 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
       appBar: AppBar(
         title: Text('补记作业'),
       ),
-      body: SingleChildScrollView(
+      body: _buildBody(),
+      resizeToAvoidBottomInset: false,
+      floatingActionButton: _buildFloatingActionButtion(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  _buildBody() {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        // 触摸收起键盘
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: SingleChildScrollView(
         child: Container(
           margin: EdgeInsets.only(left: 20, top: 10, right: 20),
           child: Column(
-          children: <Widget>[
-            _buildCourseWidget(),
-            buildInputWithTitle(_titleController, '作业内容', '标题', false, null,
-                TextInputType.text),
-            Stack(
-              children: <Widget>[
-                buildInputWithTitle(_timeController, '作业耗时', '', false, null,
-                    TextInputType.number),
-                Positioned(
-                  right: 0,
-                  top: 15,
-                  child: Text('分钟'),
-                )
-              ],
-            ),
-            _buildSlider(),
-            _buildContentWidget(),
-            SizedBox(
-              height: ScreenUtil().setHeight(200),
-            )
-          ],
-        ),
+            children: <Widget>[
+              _buildCourseWidget(),
+              buildInputWithTitle(_titleController, '作业内容', '标题', false, null,
+                  TextInputType.text),
+              Stack(
+                children: <Widget>[
+                  buildInputWithTitle(_timeController, '作业耗时', '', false, null,
+                      TextInputType.number),
+                  Positioned(
+                    right: 0,
+                    top: 15,
+                    child: Text('分钟'),
+                  )
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(top:30),
+                child: buildStarInput((ret) {
+                setState(() {
+                  this.score = ret * 20;
+                });
+              }),
+              ),
+              _buildContentWidget(),
+              SizedBox(
+                height: ScreenUtil().setHeight(200),
+              )
+            ],
+          ),
         ),
       ),
-      resizeToAvoidBottomInset:false,
-      floatingActionButton: _buildFloatingActionButtion(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -94,10 +110,10 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
     return Container(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
       child: Container(
-            width: ScreenUtil().setWidth(750),
-            margin: EdgeInsets.only(top: 0),
-            child: _buildImages(),
-          ),
+        width: ScreenUtil().setWidth(750),
+        margin: EdgeInsets.only(top: 0),
+        child: _buildImages(),
+      ),
     );
   }
 
@@ -301,44 +317,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
     }
   }
 
-  _buildSlider() {
-    return Container(
-        width: ScreenUtil().setWidth(750),
-        margin: EdgeInsets.only(top: 20, left: 0),
-        child: Card(
-          child: Stack(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(left: ScreenUtil().setWidth(120)),
-                child: Slider(
-                  label: '得分 ${score.toInt()}',
-                  max: 100,
-                  min: 0,
-                  divisions: 100,
-                  activeColor: Colors.blue,
-                  inactiveColor: Colors.grey,
-                  value: score,
-                  onChanged: (double v) {
-                    setState(() {
-                      this.score = v;
-                    });
-                  },
-                ),
-              ),
-              Positioned(
-                left: 10,
-                top: 15,
-                child: Text('得分:' + score.toInt().toString()),
-              )
-            ],
-          ),
-        ));
-  }
-
-
-
   _submit() {
- 
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -353,7 +332,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
       "course": _course,
       "outTime": 0,
       "score": score.toInt(),
-      "spendTime": int.parse(_timeController.text)*60,
+      "spendTime": int.parse(_timeController.text) * 60,
       "status": "CHECKED",
       "title": _titleController.text,
       "userId": Global.profile.user.userId
