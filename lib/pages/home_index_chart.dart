@@ -70,7 +70,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Text('分数', style: TextStyle(fontSize: 16, color: Color(0xff4af699), ),),
+                Text('评分', style: TextStyle(fontSize: 16, color: Color(0xff4af699), ),),
                 Text('用时', style: TextStyle(fontSize: 16, color: Color(0xffaa4cfc), ),)
               ],
             ),

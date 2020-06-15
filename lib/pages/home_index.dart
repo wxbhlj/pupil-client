@@ -1,12 +1,17 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:pupil/common/global.dart';
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
+import 'package:pupil/models/user.dart';
+import 'package:pupil/states/user_model.dart';
 
 import 'home_index_chart.dart';
 
@@ -17,16 +22,23 @@ class HomeIndexPage extends StatefulWidget {
 
 class _HomeIndexPageState extends State<HomeIndexPage>
     with SingleTickerProviderStateMixin {
-  
   var tasks;
   var _eventSubscription;
+  User user;
 
   @override
   void initState() {
     super.initState();
     _registerEvent();
     _refreshTodoList();
+    user = Global.profile.user;
+    print(user);
+    if(DateTime.now().millisecondsSinceEpoch - user.loginTime > 1000*60*60*24) {
+       //重新获取数据
+       _refreshUserDetail();
+    }
   }
+
   _refreshTodoList() {
     _getData().then((resp) {
       setState(() {
@@ -34,6 +46,20 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         print(tasks);
       });
     });
+  }
+
+  _refreshUserDetail() {
+    HttpUtil.getInstance()
+        .get("api/v1/ums/user/getDetail/" + Global.profile.user.userId.toString(), ).then((resp){
+          if(resp['code'] == '10000') {
+            user = User.fromJson(resp['data']);
+            print(user.avatar);
+            Provider.of<UserModel>(context, listen: false).user = user;
+            setState(() {
+              
+            });
+          }
+        });
   }
 
   _registerEvent() {
@@ -55,9 +81,9 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Column(
         children: <Widget>[
+          _buildTitle(),
           LineChartWidget(),
           Container(
             margin: EdgeInsets.only(left: 15, top: 20),
@@ -72,7 +98,11 @@ class _HomeIndexPageState extends State<HomeIndexPage>
             ),
           ),
           Expanded(
-            child: _buildTaskList(),
+            child: MediaQuery.removePadding(
+              removeTop: true,
+              context: context,
+              child: _buildTaskList(),
+            ),
           )
           //(),
         ],
@@ -80,8 +110,105 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     );
   }
 
+  Widget _buildTitle() {
+    User user = Global.profile.user;
+    return Container(
+      padding: EdgeInsets.only(top: 20, bottom: 0),
+      child: ListTile(
+        leading: user.avatar != null && user.avatar.length > 0
+            ? Container(
+                width: ScreenUtil().setWidth(96),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl: user.avatar,
+                    fit: BoxFit.fill,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ),
+              )
+            : Icon(
+                Icons.account_box,
+                size: ScreenUtil().setWidth(156),
+              ),
+        title: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                user.nick,
+                style:
+                    TextStyle(fontFamily: '微软雅黑', fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        subtitle: Padding(padding: EdgeInsets.only(top:5), child: RatingBar(
+          initialRating: user.avgScore/20,
+          direction: Axis.horizontal,
+          allowHalfRating: true,
+          itemSize: ScreenUtil().setWidth(32),
+          itemCount: 5,
+          ratingWidget: RatingWidget(
+            full: Icon(Icons.star, color: Colors.orange),
+            half: Icon(
+              Icons.star_half,
+              color: Colors.orange,
+            ),
+            empty: Icon(Icons.star_border, color: Colors.orange),
+          ),
+          itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+        ),),
+        trailing: _buildCoins(),
+        onTap: () {
+          _refreshUserDetail();
+        },
+      ),
+    );
+  }
+
+  Widget _buildCoins() {
+    return Stack(
+      //fit: StackFit.expand,
+      alignment: Alignment.topRight,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+          width: ScreenUtil().setWidth(96),
+          height: ScreenUtil().setHeight(96),
+          decoration: new BoxDecoration(
+            //color: Colors.white,
+            //设置四周圆角 角度
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            //设置四周边框
+            border: new Border.all(width: 1, color: Colors.black12),
+          ),
+        ),
+        Positioned(
+          left: ScreenUtil().setWidth(25),
+          top: ScreenUtil().setHeight(10),
+          child: InkWell(
+            child: Image.asset('images/coins.png', width: ScreenUtil().setWidth(55),),
+     
+          ),
+        ),
+        Positioned(
+          left: ScreenUtil().setWidth(00),
+          top: ScreenUtil().setHeight(55),
+          child: Container(
+            width: ScreenUtil().setWidth(96),
+            child: Center(child: Text(
+            (user.coinsTotal - user.coinsUsed).toString(),
+            style: TextStyle(color: Colors.grey),
+          ),),
+          ),
+        )
+      ],
+    );
+  }
+
   Widget _buildTaskList() {
-    if(tasks == null) {
+    if (tasks == null) {
       return Text('');
     }
     return Container(
@@ -114,13 +241,10 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     );
   }
 
-   Future _getData() async {
-    
-    return HttpUtil.getInstance()
-        .get("api/v1/ums/task/list?status=ASSIGNED&userId=" + Global.profile.user.userId.toString(), );
+  Future _getData() async {
+    return HttpUtil.getInstance().get(
+      "api/v1/ums/task/list?status=ASSIGNED&userId=" +
+          Global.profile.user.userId.toString(),
+    );
   }
-
- 
-
-  
 }

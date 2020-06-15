@@ -9,6 +9,7 @@ import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 import 'package:pupil/widgets/common.dart';
+import 'package:pupil/widgets/dialog.dart';
 import 'package:pupil/widgets/input.dart';
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
@@ -45,6 +46,18 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('作业详情'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: (){
+              showConfirmDialog(context, '确定要删除吗', (){
+                HttpUtil.instance.delete("/api/v1/ums/task/" + taskId.toString());
+                GlobalEventBus.fireRefreshCheckList();
+                Navigator.pop(context);
+              });
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: GestureDetector(
