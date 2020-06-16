@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -13,7 +14,6 @@ class LineChartWidget extends StatefulWidget {
 }
 
 class _LineChartWidgetState extends State<LineChartWidget> {
-
   List<FlSpot> scoreList = List();
   List<FlSpot> timeList = List();
   List<String> xList = List();
@@ -24,143 +24,178 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     _getLineData();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[
-        _buildLineChart(),
-        _buildBarChart()
-
-      ],
+      children: <Widget>[_buildLineChart(), _buildBarChart()],
     );
   }
 
-   _getLineData() {
+  _getLineData() {
+    String str = Global.prefs.getString("_chart_data");
+    print("chart data = " + str);
+    if (str != null && str.length > 0) {
+      var resp = jsonDecode(str);
+      int dfTime = DateTime.now().millisecondsSinceEpoch - int.parse(resp['date'].toString());
+      print("dfTime = " + (dfTime/1000/60).toString());
+      if(dfTime < 1000* 60*60*12) {
+        print('#########################return');
+        _parseResp(resp);
+        return;
+      }
+    }
     HttpUtil.getInstance()
-        .get("api/v1/ums/task/lineChart?status=CHECKED&userId=" + Global.profile.user.userId.toString(), ).then((resp) {
-          print(resp);
-          double idx = 0;
-          for(var item in resp['data']['list']) {
-            scoreList.add(FlSpot(resp['data']['list'].length - idx -1, item['score']/item['count']/20));
-            timeList.add(FlSpot(resp['data']['list'].length - idx -1, (item['spendTime']/60/60*100).toInt()/100));
-            print(item['key']);
-            print(item['score']/item['count']/20);
-            xList.insert(0,item['key']);
-            idx ++;
-            
-          }
-          course['yuwen'] = (resp['data']['yuwen']/resp['data']['yuwen_count']/20*100).toInt()/100;
-          course['shuxue'] = (resp['data']['shuxue']/resp['data']['shuxue_count']/20*100).toInt()/100;
-          course['yingyu'] = (resp['data']['yingyu']/resp['data']['yingyu_count']/20*100).toInt()/100;
-          setState(() {
-              
-            });
-        });
+        .get(
+      "api/v1/ums/task/lineChart?status=CHECKED&userId=" +
+          Global.profile.user.userId.toString(),
+    )
+        .then((resp) {
+
+      resp['date'] = DateTime.now().millisecondsSinceEpoch;
+      Global.prefs.setString("_chart_data", jsonEncode(resp));
+      _parseResp(resp);
+    });
+  }
+
+  _parseResp(var resp) {
+    double idx = 0;
+    for (var item in resp['data']['list']) {
+      scoreList.add(FlSpot(resp['data']['list'].length - idx - 1,
+          item['score'] / item['count'] / 20));
+      timeList.add(FlSpot(resp['data']['list'].length - idx - 1,
+          (item['spendTime'] / 60 / 60 * 100).toInt() / 100));
+
+      xList.insert(0, item['key']);
+      idx++;
+    }
+    course['yuwen'] =
+        (resp['data']['yuwen'] / resp['data']['yuwen_count'] / 20 * 100)
+                .toInt() /
+            100;
+    course['shuxue'] =
+        (resp['data']['shuxue'] / resp['data']['shuxue_count'] / 20 * 100)
+                .toInt() /
+            100;
+    course['yingyu'] =
+        (resp['data']['yingyu'] / resp['data']['yingyu_count'] / 20 * 100)
+                .toInt() /
+            100;
+    setState(() {});
   }
 
   Widget _buildBarChart() {
-     return AspectRatio(
-      aspectRatio: 2,
-      child: 
-      Container(
-        margin: EdgeInsets.only(
-            left: 10,
-            right: 10,
-            top: 15),
-        padding: EdgeInsets.only(top:25),
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(18)),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).accentColor,
-              Theme.of(context).accentColor.withOpacity(0.2),
-            ],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
+    return AspectRatio(
+        aspectRatio: 2,
+        child: Container(
+          margin: EdgeInsets.only(left: 10, right: 10, top: 15),
+          padding: EdgeInsets.only(top: 25),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(18)),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).accentColor,
+                Theme.of(context).accentColor.withOpacity(0.2),
+              ],
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+            ),
           ),
-        ),
-        child: course.length<3?Center(child: Text('加载数据...'),):BarChart(  
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: 5,
-            
-            barTouchData: BarTouchData(
-              enabled: false,
-              touchTooltipData: BarTouchTooltipData(
-                tooltipBgColor: Colors.transparent,
-                tooltipPadding: const EdgeInsets.all(0),
-                tooltipBottomMargin:0,
-                getTooltipItem: (
-                  BarChartGroupData group,
-                  int groupIndex,
-                  BarChartRodData rod,
-                  int rodIndex,
-                ) {
-                  return BarTooltipItem(
-                    rod.y.toString(),
-                    TextStyle(
-                      color: Utils.fanse(Theme.of(context).accentColor),
-                      fontWeight: FontWeight.bold,
+          child: course.length < 3
+              ? Center(
+                  child: Text('加载数据...'),
+                )
+              : BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: 5,
+                    barTouchData: BarTouchData(
+                      enabled: false,
+                      touchTooltipData: BarTouchTooltipData(
+                        tooltipBgColor: Colors.transparent,
+                        tooltipPadding: const EdgeInsets.all(0),
+                        tooltipBottomMargin: 0,
+                        getTooltipItem: (
+                          BarChartGroupData group,
+                          int groupIndex,
+                          BarChartRodData rod,
+                          int rodIndex,
+                        ) {
+                          return BarTooltipItem(
+                            rod.y.toString(),
+                            TextStyle(
+                              color: Utils.fanse(Theme.of(context).accentColor),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
-              ),
-            ),
-            titlesData: FlTitlesData(
-              show: true,
-              bottomTitles: SideTitles(
-                showTitles: true,
-                textStyle: TextStyle(
-                    color: const Color(0xff7589a2),  fontSize: 14),
-                margin: 10,
-                getTitles: (double value) {
-                  switch (value.toInt()) {
-                    case 0:
-                      return '语';
-                    case 1:
-                      return '数';
-                    case 2:
-                      return '英';
+                    titlesData: FlTitlesData(
+                      show: true,
+                      bottomTitles: SideTitles(
+                        showTitles: true,
+                        textStyle: TextStyle(
+                            color: const Color(0xff7589a2), fontSize: 14),
+                        margin: 10,
+                        getTitles: (double value) {
+                          switch (value.toInt()) {
+                            case 0:
+                              return '语文';
+                            case 1:
+                              return '数学';
+                            case 2:
+                              return '英语';
 
-                    default:
-                      return '';
-                  }
-                },
-              ),
-              leftTitles: SideTitles(showTitles: false),
-            ),
-            borderData: FlBorderData(
-              show: false,
-            ),
-            
-            barGroups: [
-              BarChartGroupData(
-                  x: 0,
-                  barRods: [BarChartRodData(y: course['yuwen'], color: Utils.fanse(Theme.of(context).accentColor), width: 30, borderRadius: BorderRadius.circular(6))],
-                  showingTooltipIndicators: [0]),
-              BarChartGroupData(
-                  x: 1,
-                  barRods: [BarChartRodData(y: course['shuxue'], color: Utils.fanse(Theme.of(context).accentColor), width: 30, borderRadius: BorderRadius.circular(6))],
-                  showingTooltipIndicators: [0]),
-              BarChartGroupData(
-                  x: 2,
-                  barRods: [BarChartRodData(y: course['yingyu'], color: Utils.fanse(Theme.of(context).accentColor), width: 30, borderRadius: BorderRadius.circular(6))],
-                  showingTooltipIndicators: [0]),
-            ],
-          ),
-        ),
-      )
-    );
+                            default:
+                              return '';
+                          }
+                        },
+                      ),
+                      leftTitles: SideTitles(showTitles: false),
+                    ),
+                    borderData: FlBorderData(
+                      show: false,
+                    ),
+                    barGroups: [
+                      BarChartGroupData(x: 0, barRods: [
+                        BarChartRodData(
+                            y: course['yuwen'],
+                            color: Utils.fanse(Theme.of(context).accentColor),
+                            width: 30,
+                            borderRadius: BorderRadius.circular(6))
+                      ], showingTooltipIndicators: [
+                        0
+                      ]),
+                      BarChartGroupData(x: 1, barRods: [
+                        BarChartRodData(
+                            y: course['shuxue'],
+                            color: Utils.fanse(Theme.of(context).accentColor),
+                            width: 30,
+                            borderRadius: BorderRadius.circular(6))
+                      ], showingTooltipIndicators: [
+                        0
+                      ]),
+                      BarChartGroupData(x: 2, barRods: [
+                        BarChartRodData(
+                            y: course['yingyu'],
+                            color: Utils.fanse(Theme.of(context).accentColor),
+                            width: 30,
+                            borderRadius: BorderRadius.circular(6))
+                      ], showingTooltipIndicators: [
+                        0
+                      ]),
+                    ],
+                  ),
+                ),
+        ));
   }
 
   Widget _buildLineChart() {
     return AspectRatio(
       aspectRatio: 2,
       child: Container(
-        margin: EdgeInsets.only(
-            left: 10,
-            right: 10,
-            top: 15),
+        margin: EdgeInsets.only(left: 10, right: 10, top: 15),
         padding: EdgeInsets.only(top: 25),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(18)),
@@ -176,20 +211,21 @@ class _LineChartWidgetState extends State<LineChartWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(right: 16.0, left: 6.0),
-                child: scoreList.length == 0?Center(child: Text('没有数据')):LineChart(
-                  sampleData1(),
-                  swapAnimationDuration: const Duration(milliseconds: 250),
-                ),
+                child: scoreList.length == 0
+                    ? Center(child: Text('没有数据'))
+                    : LineChart(
+                        sampleData1(),
+                        swapAnimationDuration:
+                            const Duration(milliseconds: 250),
+                      ),
               ),
             ),
             const SizedBox(
               height: 10,
             ),
-           
           ],
         ),
       ),
@@ -219,8 +255,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           ),
           margin: 10,
           getTitles: (value) {
-      
-            if(value < xList.length) {
+            if (value < xList.length) {
               return xList[value.toInt()];
             }
             return '';
@@ -235,13 +270,12 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           ),
           getTitles: (value) {
             switch (value.toInt()) {
-             
               case 1:
                 return '1星';
-          
+
               case 3:
                 return '3星';
-           
+
               case 5:
                 return '5星';
             }
@@ -259,13 +293,12 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           ),
           getTitles: (value) {
             switch (value.toInt()) {
-            
               case 1:
                 return '1小时';
-        
+
               case 3:
                 return '3小时';
-              
+
               case 5:
                 return '5小时';
             }
@@ -304,7 +337,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       spots: scoreList,
       isCurved: true,
       colors: [
-        const Color(0xff4af699),
+        Utils.fanse(Theme.of(context).accentColor),
       ],
       barWidth: 2,
       isStrokeCapRound: true,
@@ -319,7 +352,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       spots: timeList,
       isCurved: true,
       colors: [
-        const Color(0xffaa4cfc),
+        Colors.grey,
       ],
       barWidth: 2,
       isStrokeCapRound: true,

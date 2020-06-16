@@ -134,7 +134,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
       child: ListTile(
         leading: user.avatar != null && user.avatar.length > 0
             ? Container(
-                width: ScreenUtil().setWidth(96),
+                width: ScreenUtil().setWidth(100),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: CachedNetworkImage(
@@ -155,7 +155,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
               child: Text(
                 user.nick,
                 style:
-                    TextStyle(fontFamily: '微软雅黑', fontWeight: FontWeight.bold),
+                    TextStyle(fontFamily: '微软雅黑', fontWeight: FontWeight.bold,fontSize: 18),
               ),
             ),
           ],
@@ -164,7 +164,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           initialRating: user.avgScore/20,
           direction: Axis.horizontal,
           allowHalfRating: true,
-          itemSize: ScreenUtil().setWidth(32),
+          itemSize: ScreenUtil().setWidth(48),
           itemCount: 5,
           ratingWidget: RatingWidget(
             full: Icon(Icons.star, color: Colors.orange),
