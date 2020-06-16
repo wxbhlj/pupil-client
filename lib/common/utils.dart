@@ -1,4 +1,6 @@
 
+import 'package:flutter/material.dart';
+
 class Utils {
 
   static bool isPhoneNumber(String str) {
@@ -32,6 +34,10 @@ class Utils {
       DateTime date = new DateTime.fromMillisecondsSinceEpoch(time);
       return "${date.year.toString()}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
     }
+  }
+  
+  static Color fanse(Color color) {
+    return Color.fromRGBO(255 - color.red, 255 - color.green, 255 - color.blue, 1);
   }
 
   static String twoDigits2(int n) {

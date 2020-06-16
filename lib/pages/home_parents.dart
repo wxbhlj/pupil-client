@@ -39,6 +39,7 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
           _correcting(),
           _arrangeWork(),
           _recordWork(),
+          //_managerWork(),
           SizedBox(
             height: ScreenUtil().setHeight(20),
           ),
@@ -70,6 +71,12 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
   Widget _recordWork() {
     return buildListMenuItem(context, Icons.create, '补记作业', () {
       Routers.navigateTo(context, Routers.taskCreatePage);
+    });
+  }
+
+  Widget _managerWork() {
+    return buildListMenuItem(context, Icons.list, '作业管理', () {
+      Routers.navigateTo(context, Routers.taskManagerPage);
     });
   }
 

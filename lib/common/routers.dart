@@ -8,8 +8,10 @@ import 'package:pupil/pages/task_check_detail.dart';
 import 'package:pupil/pages/task_check_list.dart';
 import 'package:pupil/pages/task_create.dart';
 import 'package:pupil/pages/task_doit.dart';
+import 'package:pupil/pages/task_manager.dart';
 import 'package:pupil/pages/task_new.dart';
 import 'package:pupil/pages/task_submitted.dart';
+import 'package:pupil/widgets/image_edit.dart';
 
 
 import '../pages/login.dart';
@@ -34,6 +36,8 @@ class Routers {
   static String taskCreatePage = '/taskCreatePage';
   static String nicknameSettingPage = '/nicknameSettingPage';
   static String passwordSettingPage = '/passwordSettingPage';
+  static String taskManagerPage = '/taskManagerPage';
+  static String imageEditPage = '/imageEditPage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -56,6 +60,9 @@ class Routers {
     router.define(taskCreatePage, handler:_buildHandler(TaskCreatePage()));
     router.define(nicknameSettingPage, handler:_buildHandler(NicknameSettingPage()));
     router.define(passwordSettingPage, handler:_buildHandler(PasswordSettingPage()));
+    router.define(taskManagerPage, handler:_buildHandler(TaskManagerPage()));
+    router.define(imageEditPage, handler:_buildHandler(ImageEditPage()));
+ 
 
 
   }

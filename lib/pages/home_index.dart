@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fl_chart/fl_chart.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -81,10 +81,26 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+   
+      body: SingleChildScrollView(
+        child: Column(
         children: <Widget>[
           _buildTitle(),
           LineChartWidget(),
+          //BarChartWidget(),
+
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              _buildMenuItem("images/bujiao.png", "补交作业"),
+              _buildMenuItem("images/review.png", "作业复习"),
+               _buildMenuItem("images/review.png", "作业复习")
+            ],
+          ),
+          ),
+          /*
           Container(
             margin: EdgeInsets.only(left: 15, top: 20),
             alignment: Alignment.topLeft,
@@ -103,9 +119,10 @@ class _HomeIndexPageState extends State<HomeIndexPage>
               context: context,
               child: _buildTaskList(),
             ),
-          )
+          )*/
           //(),
         ],
+      ),
       ),
     );
   }
@@ -181,25 +198,64 @@ class _HomeIndexPageState extends State<HomeIndexPage>
             //设置四周圆角 角度
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
             //设置四周边框
-            border: new Border.all(width: 1, color: Colors.black12),
+            //border: new Border.all(width: 1, color: Colors.black12),
           ),
         ),
         Positioned(
-          left: ScreenUtil().setWidth(25),
+          left: ScreenUtil().setWidth(0),
           top: ScreenUtil().setHeight(10),
           child: InkWell(
-            child: Image.asset('images/coins.png', width: ScreenUtil().setWidth(55),),
+            child: Image.asset('images/coins.png', width: ScreenUtil().setWidth(72),),
+     
+          ), 
+        ),
+        Positioned(
+          right: ScreenUtil().setWidth(10),
+          top: ScreenUtil().setHeight(35),
+          child: Container(
+            width: ScreenUtil().setWidth(96),
+            child: Center(child: Text(
+            (user.coinsTotal - user.coinsUsed).toString(),
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildMenuItem(String image, String title) {
+    return Stack(
+      //fit: StackFit.expand,
+      alignment: Alignment.topRight,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+          width: ScreenUtil().setWidth(156),
+          height: ScreenUtil().setHeight(156),
+          decoration: new BoxDecoration(
+            //color: Colors.white,
+            //设置四周圆角 角度
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            //设置四周边框
+            //border: new Border.all(width: 1, color: Theme.of(context).accentColor),
+          ),
+        ),
+        Positioned(
+          left: ScreenUtil().setWidth(40),
+          top: ScreenUtil().setHeight(20),
+          child: InkWell(
+            child: Image.asset(image, width: ScreenUtil().setWidth(72), color: Theme.of(context).accentColor,),
      
           ),
         ),
         Positioned(
           left: ScreenUtil().setWidth(00),
-          top: ScreenUtil().setHeight(55),
+          top: ScreenUtil().setHeight(100),
           child: Container(
-            width: ScreenUtil().setWidth(96),
-            child: Center(child: Text(
-            (user.coinsTotal - user.coinsUsed).toString(),
-            style: TextStyle(color: Colors.grey),
+            width: ScreenUtil().setWidth(156),
+            child: Center(child: Text(title,
+            style: TextStyle(color: Colors.black, fontSize: 12),
           ),),
           ),
         )

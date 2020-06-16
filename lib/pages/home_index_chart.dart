@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pupil/common/global.dart';
 import 'package:pupil/common/http_util.dart';
+import 'package:pupil/common/utils.dart';
 
 class LineChartWidget extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   List<FlSpot> scoreList = List();
   List<FlSpot> timeList = List();
   List<String> xList = List();
+  Map course = Map();
 
   @override
   void initState() {
@@ -24,7 +26,13 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
   @override
   Widget build(BuildContext context) {
-    return _buildLineChart();
+    return Column(
+      children: <Widget>[
+        _buildLineChart(),
+        _buildBarChart()
+
+      ],
+    );
   }
 
    _getLineData() {
@@ -32,33 +40,134 @@ class _LineChartWidgetState extends State<LineChartWidget> {
         .get("api/v1/ums/task/lineChart?status=CHECKED&userId=" + Global.profile.user.userId.toString(), ).then((resp) {
           print(resp);
           double idx = 0;
-          for(var item in resp['data']) {
-            scoreList.insert(0,FlSpot(idx, item['score']/item['count']));
-            timeList.insert(0,FlSpot(idx, item['spendTime']/60/60*20));
-            //print(item['spendTime']/item['count']/60/60*20);
+          for(var item in resp['data']['list']) {
+            scoreList.add(FlSpot(resp['data']['list'].length - idx -1, item['score']/item['count']/20));
+            timeList.add(FlSpot(resp['data']['list'].length - idx -1, (item['spendTime']/60/60*100).toInt()/100));
+            print(item['key']);
+            print(item['score']/item['count']/20);
             xList.insert(0,item['key']);
             idx ++;
-            setState(() {
+            
+          }
+          course['yuwen'] = (resp['data']['yuwen']/resp['data']['yuwen_count']/20*100).toInt()/100;
+          course['shuxue'] = (resp['data']['shuxue']/resp['data']['shuxue_count']/20*100).toInt()/100;
+          course['yingyu'] = (resp['data']['yingyu']/resp['data']['yingyu_count']/20*100).toInt()/100;
+          setState(() {
               
             });
-          }
         });
   }
 
-  Widget _buildLineChart() {
-    return AspectRatio(
-      aspectRatio: 1.5,
-      child: Container(
+  Widget _buildBarChart() {
+     return AspectRatio(
+      aspectRatio: 2,
+      child: 
+      Container(
         margin: EdgeInsets.only(
             left: 10,
             right: 10,
-            top: MediaQueryData.fromWindow(window).padding.top),
+            top: 15),
+        padding: EdgeInsets.only(top:25),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(18)),
           gradient: LinearGradient(
             colors: [
               Theme.of(context).accentColor,
-              Colors.white38,
+              Theme.of(context).accentColor.withOpacity(0.2),
+            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
+        ),
+        child: course.length<3?Center(child: Text('加载数据...'),):BarChart(  
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            maxY: 5,
+            
+            barTouchData: BarTouchData(
+              enabled: false,
+              touchTooltipData: BarTouchTooltipData(
+                tooltipBgColor: Colors.transparent,
+                tooltipPadding: const EdgeInsets.all(0),
+                tooltipBottomMargin:0,
+                getTooltipItem: (
+                  BarChartGroupData group,
+                  int groupIndex,
+                  BarChartRodData rod,
+                  int rodIndex,
+                ) {
+                  return BarTooltipItem(
+                    rod.y.toString(),
+                    TextStyle(
+                      color: Utils.fanse(Theme.of(context).accentColor),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+            ),
+            titlesData: FlTitlesData(
+              show: true,
+              bottomTitles: SideTitles(
+                showTitles: true,
+                textStyle: TextStyle(
+                    color: const Color(0xff7589a2),  fontSize: 14),
+                margin: 10,
+                getTitles: (double value) {
+                  switch (value.toInt()) {
+                    case 0:
+                      return '语';
+                    case 1:
+                      return '数';
+                    case 2:
+                      return '英';
+
+                    default:
+                      return '';
+                  }
+                },
+              ),
+              leftTitles: SideTitles(showTitles: false),
+            ),
+            borderData: FlBorderData(
+              show: false,
+            ),
+            
+            barGroups: [
+              BarChartGroupData(
+                  x: 0,
+                  barRods: [BarChartRodData(y: course['yuwen'], color: Utils.fanse(Theme.of(context).accentColor), width: 30, borderRadius: BorderRadius.circular(6))],
+                  showingTooltipIndicators: [0]),
+              BarChartGroupData(
+                  x: 1,
+                  barRods: [BarChartRodData(y: course['shuxue'], color: Utils.fanse(Theme.of(context).accentColor), width: 30, borderRadius: BorderRadius.circular(6))],
+                  showingTooltipIndicators: [0]),
+              BarChartGroupData(
+                  x: 2,
+                  barRods: [BarChartRodData(y: course['yingyu'], color: Utils.fanse(Theme.of(context).accentColor), width: 30, borderRadius: BorderRadius.circular(6))],
+                  showingTooltipIndicators: [0]),
+            ],
+          ),
+        ),
+      )
+    );
+  }
+
+  Widget _buildLineChart() {
+    return AspectRatio(
+      aspectRatio: 2,
+      child: Container(
+        margin: EdgeInsets.only(
+            left: 10,
+            right: 10,
+            top: 15),
+        padding: EdgeInsets.only(top: 25),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(18)),
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).accentColor,
+              Theme.of(context).accentColor.withOpacity(0.2),
             ],
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
@@ -67,16 +176,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text('评分', style: TextStyle(fontSize: 16, color: Color(0xff4af699), ),),
-                Text('用时', style: TextStyle(fontSize: 16, color: Color(0xffaa4cfc), ),)
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
+
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(right: 16.0, left: 6.0),
@@ -89,6 +189,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
             const SizedBox(
               height: 10,
             ),
+           
           ],
         ),
       ),
@@ -134,18 +235,15 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           ),
           getTitles: (value) {
             switch (value.toInt()) {
-              case 0:
-                return '0';
-              case 20:
-                return '20';
-              case 40:
-                return '40';
-              case 60:
-                return '60';
-              case 80:
-                return '80';
-              case 100:
-                return '100';
+             
+              case 1:
+                return '1星';
+          
+              case 3:
+                return '3星';
+           
+              case 5:
+                return '5星';
             }
             return '';
           },
@@ -161,17 +259,14 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           ),
           getTitles: (value) {
             switch (value.toInt()) {
-              case 0:
-                return '0小时';
-              case 20:
+            
+              case 1:
                 return '1小时';
-              case 40:
-                return '2小时';
-              case 60:
+        
+              case 3:
                 return '3小时';
-              case 80:
-                return '4小时';
-              case 100:
+              
+              case 5:
                 return '5小时';
             }
             return '';
@@ -198,7 +293,8 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           ),
         ),
       ),
-     
+      maxY: 5,
+      minY: 0,
       lineBarsData: linesBarData1(),
     );
   }
