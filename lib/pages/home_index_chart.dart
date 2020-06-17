@@ -34,7 +34,6 @@ class _LineChartWidgetState extends State<LineChartWidget> {
 
   _getLineData() {
     String str = Global.prefs.getString("_chart_data");
-    print("chart data = " + str);
     if (str != null && str.length > 0) {
       var resp = jsonDecode(str);
       int dfTime = DateTime.now().millisecondsSinceEpoch - int.parse(resp['date'].toString());

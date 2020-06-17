@@ -246,7 +246,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 480, maxHeight: 720);
+        source: ImageSource.camera, maxWidth: 768, maxHeight: 1152);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});

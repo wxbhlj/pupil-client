@@ -32,7 +32,55 @@ Widget buildImageWithDel(_image, Function fun) {
   );
 }
 
-
+Widget buildCameraAndRecordButtons(Function selectImage, Function record) {
+    return Container(
+      width: ScreenUtil().setWidth(750),
+      margin: EdgeInsets.only(bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          InkWell(
+            child: Container(
+              margin: EdgeInsets.only(top: ScreenUtil().setHeight(5)),
+              width: ScreenUtil().setWidth(120),
+              height: ScreenUtil().setHeight(82),
+              child: Column(
+                children: <Widget>[
+                  Icon(Icons.photo_camera),
+                  Text(
+                    '拍照',
+                    style: TextStyle(color: Colors.black, fontSize: 12),
+                  )
+                ],
+              ),
+            ),
+            onTap: () {
+              selectImage();
+            },
+          ),
+          InkWell(
+            child: Container(
+              margin: EdgeInsets.only(top: ScreenUtil().setHeight(5)),
+              width: ScreenUtil().setWidth(120),
+              height: ScreenUtil().setHeight(82),
+              child: Column(
+                children: <Widget>[
+                  Icon(Icons.keyboard_voice),
+                  Text(
+                    '录音',
+                    style: TextStyle(color: Colors.black, fontSize: 12),
+                  )
+                ],
+              ),
+            ),
+            onTap: () {
+              record();
+            },
+          )
+        ],
+      ),
+    );
+  }
 
 
 class SoundWidget extends StatefulWidget {

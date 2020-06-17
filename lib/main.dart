@@ -56,6 +56,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               primarySwatch: themeModel.theme,
+              //appBarTheme: AppBarTheme(brightness: Brightness.light),
             ),
       
             home: AnimatedSplash(

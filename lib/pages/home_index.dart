@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -28,9 +29,10 @@ class _HomeIndexPageState extends State<HomeIndexPage>
 
   @override
   void initState() {
+    
     super.initState();
     _registerEvent();
-    _refreshTodoList();
+ 
     user = Global.profile.user;
     print(user);
     if(DateTime.now().millisecondsSinceEpoch - user.loginTime > 1000*60*60*24) {
@@ -39,14 +41,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     }
   }
 
-  _refreshTodoList() {
-    _getData().then((resp) {
-      setState(() {
-        tasks = resp['data'];
-        print(tasks);
-      });
-    });
-  }
+
 
   _refreshUserDetail() {
     HttpUtil.getInstance()
@@ -67,7 +62,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
       print("onEvent:" + event.eventType);
       if (event.eventType == EVENT_REFRESH_TODOLIST) {
-        _refreshTodoList();
+     
       }
     });
   }
@@ -80,11 +75,18 @@ class _HomeIndexPageState extends State<HomeIndexPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Scaffold(
    
       body: SingleChildScrollView(
         child: Column(
         children: <Widget>[
+       
           _buildTitle(),
           LineChartWidget(),
           //BarChartWidget(),
@@ -94,43 +96,44 @@ class _HomeIndexPageState extends State<HomeIndexPage>
             child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              _buildMenuItem("images/bujiao.png", "补交作业"),
-              _buildMenuItem("images/review.png", "作业复习"),
-               _buildMenuItem("images/review.png", "作业复习")
+              InkWell(
+                child: _buildMenuItem("images/bujiao.png", "补拍作业"),
+                onTap: () {
+                  Routers.navigateTo(context, Routers.taskTodoListPage);
+                },
+              ),
+              InkWell(
+                child: _buildMenuItem("images/review.png", "首轮复习"),
+                onTap: () {
+                  Routers.navigateTo(context, Routers.taskReviewListPage+ "?status=CHECKED");
+                },
+              ),
+              InkWell(
+                child: _buildMenuItem("images/review2.png", "深化复习"),
+                onTap: () {
+                  Routers.navigateTo(context, Routers.taskReviewListPage + "?status=REVIEWED");
+                },
+              ),
+              
+               
             ],
           ),
           ),
-          /*
-          Container(
-            margin: EdgeInsets.only(left: 15, top: 20),
-            alignment: Alignment.topLeft,
-            child: Text(
-              '今日作业',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2),
-            ),
-          ),
-          Expanded(
-            child: MediaQuery.removePadding(
-              removeTop: true,
-              context: context,
-              child: _buildTaskList(),
-            ),
-          )*/
+ 
           //(),
         ],
       ),
       ),
+    ),
+        )
     );
+ 
   }
 
   Widget _buildTitle() {
     User user = Global.profile.user;
     return Container(
-      padding: EdgeInsets.only(top: 20, bottom: 0),
+      padding: EdgeInsets.only(top: 25, bottom: 0),
       child: ListTile(
         leading: user.avatar != null && user.avatar.length > 0
             ? Container(
@@ -263,44 +266,5 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     );
   }
 
-  Widget _buildTaskList() {
-    if (tasks == null) {
-      return Text('');
-    }
-    return Container(
-      width: ScreenUtil().setWidth(750),
-      child: ListView.separated(
-        itemCount: tasks.length,
-        itemBuilder: (BuildContext context, int index) {
-          var item = tasks[index];
-          return ListTile(
-            title: Text(
-              item['title'],
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(item['course']),
-            onTap: () {
-              Global.prefs.setInt("_taskId", item['id']);
-              Global.prefs.setString("_taskTitle", item['title']);
-              Routers.navigateTo(context, Routers.taskDoitPage);
-            },
-            trailing: Icon(Icons.keyboard_arrow_right),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return new Divider(
-            height: 0,
-            color: Colors.grey[300],
-          );
-        },
-      ),
-    );
-  }
 
-  Future _getData() async {
-    return HttpUtil.getInstance().get(
-      "api/v1/ums/task/list?status=ASSIGNED&userId=" +
-          Global.profile.user.userId.toString(),
-    );
-  }
 }

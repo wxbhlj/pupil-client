@@ -219,60 +219,12 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
       width: ScreenUtil().setWidth(750),
       height: ScreenUtil().setHeight(230),
       child: Column(
-        children: <Widget>[_buildActionButtons(), _buildSubmitButton()],
+        children: <Widget>[buildCameraAndRecordButtons(_selectImage, _record), _buildSubmitButton()],
       ),
     );
   }
 
-  Widget _buildActionButtons() {
-    return Container(
-      width: ScreenUtil().setWidth(750),
-      margin: EdgeInsets.only(bottom: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          InkWell(
-            child: Container(
-              margin: EdgeInsets.only(top: ScreenUtil().setHeight(5)),
-              width: ScreenUtil().setWidth(120),
-              height: ScreenUtil().setHeight(82),
-              child: Column(
-                children: <Widget>[
-                  Icon(Icons.photo_camera),
-                  Text(
-                    '拍照',
-                    style: TextStyle(color: Colors.black, fontSize: 12),
-                  )
-                ],
-              ),
-            ),
-            onTap: () {
-              _selectImage();
-            },
-          ),
-          InkWell(
-            child: Container(
-              margin: EdgeInsets.only(top: ScreenUtil().setHeight(5)),
-              width: ScreenUtil().setWidth(120),
-              height: ScreenUtil().setHeight(82),
-              child: Column(
-                children: <Widget>[
-                  Icon(Icons.keyboard_voice),
-                  Text(
-                    '录音',
-                    style: TextStyle(color: Colors.black, fontSize: 12),
-                  )
-                ],
-              ),
-            ),
-            onTap: () {
-              _record();
-            },
-          )
-        ],
-      ),
-    );
-  }
+  
 
   _record() {
     showModalBottomSheet(
@@ -290,7 +242,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 640, maxHeight: 960);
+        source: ImageSource.camera, maxWidth: 768, maxHeight: 1152);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});
