@@ -132,17 +132,17 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           Divider(
             height: ScreenUtil().setHeight(20),
           ),
-          buildInputWithTitle(
-              _titleController, '作业内容', '标题', false, null, TextInputType.text),
+          buildInput3(
+              _titleController, '标题', false, null, TextInputType.text),
 
           Stack(
             children: <Widget>[
-              buildInputWithTitle(_timeController, '作业耗时', '', false, null,
+              buildInput3(_timeController, '作业耗时', false, null,
                   TextInputType.number),
               Positioned(
                 right: 0,
                 top: 15,
-                child: Text('分钟'),
+                child: Text('耗时(分钟)'),
               )
             ],
           ),

@@ -81,7 +81,15 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
     }
     index = index ~/ 2;
     return ListTile(
-      title: Text(tasks[index]['title']  ),
+      title: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(tasks[index]['title'] ,overflow: TextOverflow.ellipsis,),
+
+          ),
+          Text(Utils.formatDate3(tasks[index]['created']))
+        ],
+      ),
       subtitle: Text(tasks[index]['course']),
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {

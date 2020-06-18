@@ -55,12 +55,21 @@ class Utils {
     } else {
       DateTime today = DateTime.now();
       DateTime date = new DateTime.fromMillisecondsSinceEpoch(time);
+      Duration du = today.difference(date);
       if(today.year == date.year && today.month == date.month && today.day == date.day ) {
      
-          return "今天 ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+          return "今天";
+   
+      } else if(du.inDays == 0) {
+     
+          return "昨天";
+   
+      } else if(du.inDays < 5) {
+     
+          return "${du.inDays +1}天前";
    
       } else {
-        return "${date.year.toString()}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+        return "${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
       }
       
     }

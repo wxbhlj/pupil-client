@@ -6,6 +6,7 @@ import 'package:pupil/common/global.dart';
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
+import 'package:pupil/common/utils.dart';
 
 
 class TaskReviewListPage extends StatefulWidget {
@@ -84,7 +85,15 @@ class _TaskReviewListPageState extends State<TaskReviewListPage> {
     }
     index = index ~/ 2;
     return ListTile(
-      title: Text(tasks[index]['title']  ),
+      title: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(tasks[index]['title'] ,overflow: TextOverflow.ellipsis,),
+
+          ),
+          Text(Utils.formatDate3(tasks[index]['created']))
+        ],
+      ),
       leading: Container(
           margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
           width: ScreenUtil().setWidth(96),

@@ -35,6 +35,22 @@ Widget buildInputWithTitle(
   );
 }
 
+Widget buildInput3(
+    TextEditingController controller, String text, bool readonly, Function fun, TextInputType type) {
+  return Row(
+    children: <Widget>[
+      Expanded(
+        child: TextField(
+            keyboardType: type,
+            controller: controller,
+            enabled: !readonly,
+            decoration: InputDecoration(hintText: text),
+            onTap: fun,),
+      ),
+    ],
+  );
+}
+
 Widget buildInput(
     TextEditingController controller, IconData icon, String text, bool isPwd) {
   return Row(

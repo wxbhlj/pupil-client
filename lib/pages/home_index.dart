@@ -213,8 +213,8 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           ), 
         ),
         Positioned(
-          right: ScreenUtil().setWidth(10),
-          top: ScreenUtil().setHeight(35),
+          right: ScreenUtil().setWidth(12),
+          top: ScreenUtil().setHeight(32),
           child: Container(
             width: ScreenUtil().setWidth(96),
             child: Center(child: Text(

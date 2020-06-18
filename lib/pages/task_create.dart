@@ -70,15 +70,15 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
       },
       child: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.only(left: 20, top: 10, right: 20),
+          margin: EdgeInsets.only(left: 20, top: 0, right: 20),
           child: Column(
             children: <Widget>[
               _buildCourseWidget(),
-              buildInputWithTitle(_titleController, '作业内容', '标题', false, null,
+              buildInput3(_titleController,  '作业内容', false, null,
                   TextInputType.text),
               Stack(
                 children: <Widget>[
-                  buildInputWithTitle(_timeController, '作业耗时', '', false, null,
+                  buildInput3(_timeController,  '作业耗时', false, null,
                       TextInputType.number),
                   Positioned(
                     right: 0,
@@ -246,7 +246,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 768, maxHeight: 1152);
+        source: ImageSource.camera, maxWidth: 1080, maxHeight: 1440, imageQuality: 50);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});
@@ -309,6 +309,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
             setState(() {
               _course = val ? chip : _course;
             });
+            _titleController.value = TextEditingValue(text: _course);
           },
           selectedColor: Theme.of(context).accentColor,
           selected: _course == chip,

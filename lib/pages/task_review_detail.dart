@@ -108,7 +108,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 768, maxHeight: 1152);
+        source: ImageSource.camera, maxWidth: 1080, maxHeight: 1440, imageQuality: 50);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});
