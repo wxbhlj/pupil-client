@@ -134,6 +134,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
     }
     var task = data['task'];
     var attachments = data['attachments'];
+     Global.prefs.setInt("_taskId", task['id']);
 
     return Container(
       margin: EdgeInsets.only(

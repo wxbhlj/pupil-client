@@ -207,6 +207,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     print('build image....');
     return InkWell(
       onTap: () {
+        
         Global.prefs.setInt("_attachmentId", attach['id']);
       Global.prefs.setString("_attachmentUrl", attach['url']);
       Routers.router

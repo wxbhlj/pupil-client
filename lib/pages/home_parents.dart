@@ -44,7 +44,7 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
           SizedBox(
             height: ScreenUtil().setHeight(40),
           ),
-          _test(),
+      
           _settings(),
 
 
@@ -82,15 +82,6 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
     });
   }
 
-Widget _test() {
-    return buildListMenuItem(context, Icons.settings, '测试页面', () {
-
-      Global.prefs.setInt("_attachmentId", 1);
-      Global.prefs.setString("_attachmentUrl", "http://img.shellsports.cn/58-HEADER-1592472113957.png");
-      Routers.router
-          .navigateTo(context, Routers.imageEditPage , replace: false);
-    });
-  }
 
    Widget _settings() {
     return buildListMenuItem(context, Icons.settings, '系统设置', () {

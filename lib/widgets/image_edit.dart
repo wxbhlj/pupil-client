@@ -5,15 +5,19 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/services.dart';
 
 import 'package:flutter_screenutil/screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pupil/common/global.dart';
+import 'package:pupil/common/http_util.dart';
 import 'package:pupil/widgets/dialog.dart';
+import 'package:path/path.dart' as path;
 
 import 'common.dart';
 
@@ -31,11 +35,13 @@ class _ImageEditPageState extends State<ImageEditPage>
   final GlobalKey<_ScalableImageState> globalKey = GlobalKey();
 
   int id;
+  int taskId;
   String url;
   bool _isDraw = false;
 
   @override
   void initState() {
+    taskId = Global.prefs.getInt("_taskId");
     id = Global.prefs.getInt("_attachmentId");
     url = Global.prefs.getString("_attachmentUrl");
     SystemChrome.setEnabledSystemUIOverlays([]);
@@ -120,17 +126,41 @@ class _ImageEditPageState extends State<ImageEditPage>
                   showConfirmDialog(context, '保存并覆盖现有图片吗', () async {
                     ui.Image renderedImage =
                         await globalKey.currentState.rendered; // 转成图片
-                    // var  image = renderedImage;
-                    print('aaaa');
-                    ByteData bb = await renderedImage.toByteData();
-                    print('bbb');
-                    try{
-                      await ImageGallerySaver.saveImage(bb.buffer.asUint8List());
-                    } catch(e) {
-                      print(e);
-                    }
-                    
-                    print('ccc');
+                    var image = renderedImage;
+                    Directory appDocDir =
+                        await getApplicationDocumentsDirectory();
+                    String appDocPath = appDocDir.path;
+                    var pngBytes =
+                        await image.toByteData(format: ui.ImageByteFormat.png);
+                    final imageFile = File(path.join(appDocPath, 'dart.png'));
+                    await imageFile
+                        .writeAsBytesSync(pngBytes.buffer.asInt8List());
+
+                    FormData formData = new FormData.fromMap({});
+
+                    formData.files.add(MapEntry(
+                      "files",
+                      MultipartFile.fromFileSync(imageFile.path,
+                          filename: 'image'),
+                    ));
+
+                    String url =
+                        "/api/v1/ums/task/reviewed/" + taskId.toString();
+
+                    print(formData);
+                    HttpUtil.getInstance()
+                        .put(url, formData: formData)
+                        .then((val) {
+                      Navigator.pop(context);
+                      print(val);
+                      if (val['code'] == '10000') {
+                        Navigator.pop(context);
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: val['message'], gravity: ToastGravity.CENTER);
+                      }
+                    });
+
                     //FormData formData =FormData.from({"image": UploadFileInfo(imageFile, 'image.jpg')});
                   });
                 });
@@ -255,13 +285,13 @@ class _ScalableImageState extends State<ScalableImage> {
   Future<ui.Image> get rendered {
     ui.PictureRecorder recorder = ui.PictureRecorder();
     Canvas canvas = Canvas(recorder);
-    _ScalableImagePainter painter = _ScalableImagePainter(
-        _imageInfo.image, _offset, 1.0, _points, _imageSize, context);
-    var size = context.size;
-    painter.paint(canvas, size);
+    _ScalableImagePainter painter = new _ScalableImagePainter(
+          _imageInfo.image, _offset, _scale, _points, _imageSize, context);
+
+    painter.paint(canvas, _imageSize);
     return recorder
         .endRecording()
-        .toImage(size.width.floor(), size.height.floor());
+        .toImage(_imageSize.width.floor(), _imageSize.height.floor());
   }
   //////////////////////////////////
 
