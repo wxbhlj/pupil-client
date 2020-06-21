@@ -71,9 +71,9 @@ class Routers {
     router.define(passwordSettingPage,
         handler: _buildHandler(PasswordSettingPage()));
     router.define(taskManagerPage, handler: _buildHandler(TaskManagerPage()));
-    router.define(imageEditPage, handler: _buildHandler(ImageEditPage()));
+    
     router.define(taskTodoListPage, handler: _buildHandler(TaskTodoListPage()));
-
+router.define(imageEditPage, handler: _buildHandler(ImageEditPage()));
 
     router.define(taskReviewDetailPage, handler:Handler(
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {

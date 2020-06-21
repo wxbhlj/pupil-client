@@ -36,7 +36,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
   TextEditingController _timeController =
-      TextEditingController.fromValue(TextEditingValue(text: ''));
+      TextEditingController.fromValue(TextEditingValue(text: '0'));
 
   @override
   void initState() {

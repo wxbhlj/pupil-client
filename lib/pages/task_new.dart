@@ -364,9 +364,9 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   _submit() {
 
-    if(_seconds < 3) {
+    if(files.length == 0) {
        Fluttertoast.showToast(
-            msg: '时间太短(少于3分钟)，请稍后再试', gravity: ToastGravity.CENTER);
+            msg: '请拍照或录音', gravity: ToastGravity.CENTER);
       return;
     }
     if(_course == '' || _type == '') {

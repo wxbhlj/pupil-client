@@ -7,9 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pupil/common/global.dart';
 
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
+import 'package:pupil/common/routers.dart';
 
 import 'package:pupil/widgets/common.dart';
 import 'package:pupil/widgets/dialog.dart';
@@ -26,15 +28,11 @@ class TaskReviewDetailPage extends StatefulWidget {
 }
 
 class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
-
-
-  
   List<SelectFile> files = List();
 
   var data;
   @override
   void initState() {
- 
     _getData().then((resp) {
       print("##################");
       print(resp);
@@ -49,19 +47,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: data == null?Text(''):Text(data['task']['title']),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: (){
-              showConfirmDialog(context, '确定要删除吗', (){
-                HttpUtil.instance.delete("/api/v1/ums/task/" + widget.taskId.toString());
-                GlobalEventBus.fireRefreshCheckList();
-                Navigator.pop(context);
-              });
-            },
-          )
-        ],
+        title: data == null ? Text('') : Text(data['task']['title']),
       ),
       body: SingleChildScrollView(
         child: GestureDetector(
@@ -85,12 +71,13 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
       width: ScreenUtil().setWidth(750),
       height: ScreenUtil().setHeight(230),
       child: Column(
-        children: <Widget>[buildCameraAndRecordButtons(_selectImage, _record), _buildSubmitButton()],
+        children: <Widget>[
+          buildCameraAndRecordButtons(_selectImage, _record),
+          _buildSubmitButton()
+        ],
       ),
     );
   }
-
-  
 
   _record() {
     showModalBottomSheet(
@@ -108,13 +95,14 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 1080, maxHeight: 1440, imageQuality: 50);
+        source: ImageSource.camera,
+        maxWidth: 1080,
+        maxHeight: 1440,
+        imageQuality: 50);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});
   }
-
- 
 
   Widget _buildSubmitButton() {
     return Container(
@@ -149,9 +137,10 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
 
     return Container(
       margin: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 10,),
+        left: 20,
+        right: 20,
+        top: 10,
+      ),
       child: Column(
         children: <Widget>[
           _buildAttachment(attachments),
@@ -159,10 +148,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
           Divider(
             height: ScreenUtil().setHeight(20),
           ),
-          
           _buildContentWidget(),
-
-      
         ],
       ),
     );
@@ -214,10 +200,10 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
     print('build image....');
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(PageRouteBuilder(
-            pageBuilder: (c, a, s) => PreviewImagesWidget(
-                  attach['url'],
-                )));
+        Global.prefs.setInt("_attachmentId", attach['id']);
+        Global.prefs.setString("_attachmentUrl", attach['url']);
+        Routers.router
+            .navigateTo(context, Routers.imageEditPage, replace: false);
       },
       child: Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
@@ -323,9 +309,8 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
       }),
     );
   }
-  ///
 
-  
+  ///
 
   _submit() {
     showDialog(
@@ -337,10 +322,8 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
           );
         });
 
-    FormData formData = new FormData.fromMap({
+    FormData formData = new FormData.fromMap({});
 
-    });
-  
     if (files.length > 0) {
       for (SelectFile file in files) {
         formData.files.add(MapEntry(
@@ -349,7 +332,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
         ));
       }
     }
-    String url = "/api/v1/ums/task/reviewed/"+ widget.taskId ;
+    String url = "/api/v1/ums/task/reviewed/" + widget.taskId;
 
     print(formData);
     HttpUtil.getInstance().put(url, formData: formData).then((val) {

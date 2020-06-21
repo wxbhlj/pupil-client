@@ -63,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
           _nickSetting(),
           _pwdSetting(),
           SizedBox(
-            height: ScreenUtil().setHeight(20),
+            height: ScreenUtil().setHeight(40),
           ),
           _themeColor(),
           _logout(),
@@ -89,8 +89,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _pwdSetting() {
     return buildListMenuItem(
       context,
-      Icons.person,
-      '设置密码',
+      Icons.lock,
+      '登录密码',
       () {
         Routers.router
             .navigateTo(context, Routers.passwordSettingPage, replace: false);

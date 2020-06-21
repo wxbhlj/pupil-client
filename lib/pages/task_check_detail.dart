@@ -207,10 +207,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     print('build image....');
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(PageRouteBuilder(
-            pageBuilder: (c, a, s) => PreviewImagesWidget(
-                  attach['url'],
-                )));
+        Global.prefs.setInt("_attachmentId", attach['id']);
+      Global.prefs.setString("_attachmentUrl", attach['url']);
+      Routers.router
+          .navigateTo(context, Routers.imageEditPage , replace: false);
       },
       child: Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),

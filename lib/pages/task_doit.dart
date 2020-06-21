@@ -305,6 +305,11 @@ class _TaskDoitPageState extends State<TaskDoitPage> with WidgetsBindingObserver
 
   _submit() {
 
+      if(files.length == 0) {
+       Fluttertoast.showToast(
+            msg: '请拍照或录音', gravity: ToastGravity.CENTER);
+      return;
+    }
     showDialog(
         context: context,
         barrierDismissible: false,

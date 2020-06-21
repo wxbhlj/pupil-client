@@ -49,6 +49,11 @@
 	<string>应用需要访问你的相册</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>应用需要使用语音识别结果</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>应用需要往你的相册写入图片</string>
+	
+
+
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

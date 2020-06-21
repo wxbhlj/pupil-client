@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pupil/common/global.dart';
 
 
 
@@ -39,10 +40,11 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
           _correcting(),
           _arrangeWork(),
           _recordWork(),
-          //_managerWork(),
+          _managerWork(),
           SizedBox(
-            height: ScreenUtil().setHeight(20),
+            height: ScreenUtil().setHeight(40),
           ),
+          _test(),
           _settings(),
 
 
@@ -75,8 +77,18 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
   }
 
   Widget _managerWork() {
-    return buildListMenuItem(context, Icons.list, '作业管理', () {
+    return buildListMenuItem(context, Icons.list, '作业列表', () {
       Routers.navigateTo(context, Routers.taskManagerPage);
+    });
+  }
+
+Widget _test() {
+    return buildListMenuItem(context, Icons.settings, '测试页面', () {
+
+      Global.prefs.setInt("_attachmentId", 1);
+      Global.prefs.setString("_attachmentUrl", "http://img.shellsports.cn/58-HEADER-1592472113957.png");
+      Routers.router
+          .navigateTo(context, Routers.imageEditPage , replace: false);
     });
   }
 

@@ -32,6 +32,10 @@ Widget buildImageWithDel(_image, Function fun) {
   );
 }
 
+Widget assertImage(String name) {
+  return Image.asset(name, width: 32,);
+}
+
 Widget buildCameraAndRecordButtons(Function selectImage, Function record) {
     return Container(
       width: ScreenUtil().setWidth(750),
