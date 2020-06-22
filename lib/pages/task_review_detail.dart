@@ -14,7 +14,6 @@ import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 
 import 'package:pupil/widgets/common.dart';
-import 'package:pupil/widgets/dialog.dart';
 
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
@@ -29,10 +28,17 @@ class TaskReviewDetailPage extends StatefulWidget {
 
 class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
   List<SelectFile> files = List();
+  var _eventSubscription;
 
   var data;
   @override
   void initState() {
+    _refreshData();
+    _registerEvent();
+    super.initState();
+  }
+
+  _refreshData() {
     _getData().then((resp) {
       print("##################");
       print(resp);
@@ -40,7 +46,22 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
         data = resp['data'];
       });
     });
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription.cancel();
+    super.dispose();
+  }
+
+  _registerEvent() {
+    _eventSubscription =
+        GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
+      print("onEvent:" + event.eventType);
+      if (event.eventType == EVENT_REFRESH_TASK) {
+        _refreshData();
+      }
+    });
   }
 
   @override
@@ -134,7 +155,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
     }
     var task = data['task'];
     var attachments = data['attachments'];
-     Global.prefs.setInt("_taskId", task['id']);
+    Global.prefs.setInt("_taskId", task['id']);
 
     return Container(
       margin: EdgeInsets.only(

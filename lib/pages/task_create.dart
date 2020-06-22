@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -74,11 +76,11 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
           child: Column(
             children: <Widget>[
               _buildCourseWidget(),
-              buildInput3(_titleController,  '作业内容', false, null,
-                  TextInputType.text),
+              buildInput3(
+                  _titleController, '作业内容', false, null, TextInputType.text),
               Stack(
                 children: <Widget>[
-                  buildInput3(_timeController,  '作业耗时', false, null,
+                  buildInput3(_timeController, '作业耗时', false, null,
                       TextInputType.number),
                   Positioned(
                     right: 0,
@@ -88,12 +90,12 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
                 ],
               ),
               Padding(
-                padding: EdgeInsets.only(top:30),
+                padding: EdgeInsets.only(top: 30),
                 child: buildStarInput((ret) {
-                setState(() {
-                  this.score = ret * 20;
-                });
-              }),
+                  setState(() {
+                    this.score = ret * 20;
+                  });
+                }),
               ),
               _buildContentWidget(),
               SizedBox(
@@ -246,7 +248,10 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 1080, maxHeight: 1440, imageQuality: 50);
+        source: ImageSource.camera,
+        maxWidth: 1080,
+        maxHeight: 1440,
+        imageQuality: 50);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});
@@ -318,7 +323,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
     }
   }
 
-  _submit() {
+  _submit() async {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -341,10 +346,21 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
     String url = "/api/v1/ums/task";
     if (files.length > 0) {
       for (SelectFile file in files) {
-        formData.files.add(MapEntry(
-          "files",
-          MultipartFile.fromFileSync(file.file.path, filename: file.type),
-        ));
+        if (file.type == 'image') {
+          File compressedFile = await FlutterNativeImage.compressImage(
+              file.file.path,
+              quality: 60,
+              percentage: 100);
+          formData.files.add(MapEntry(
+            "files",
+            MultipartFile.fromFileSync(compressedFile.path, filename: file.type),
+          ));
+        } else {
+          formData.files.add(MapEntry(
+            "files",
+            MultipartFile.fromFileSync(file.file.path, filename: file.type),
+          ));
+        }
       }
     }
 

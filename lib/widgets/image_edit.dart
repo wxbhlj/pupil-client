@@ -8,13 +8,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/services.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pupil/common/global.dart';
+import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/widgets/dialog.dart';
 import 'package:path/path.dart' as path;
@@ -61,9 +62,12 @@ class _ImageEditPageState extends State<ImageEditPage>
           Positioned(
             top: 20,
             left: 20,
-            child: InkWell(
-              child: assertImage("images/back.png"),
-              onTap: () {
+            child: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                color: Colors.white,
+              ),
+              onPressed: () {
                 Navigator.pop(context);
               },
             ),
@@ -79,6 +83,32 @@ class _ImageEditPageState extends State<ImageEditPage>
               onPressed: () {
                 setState(() {
                   _isDraw = globalKey.currentState.setDrawModel();
+                });
+              },
+            ),
+          ),
+          Positioned(
+            right: 20,
+            top: 20,
+            child: IconButton(
+              icon: Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
+              onPressed: () {
+                showConfirmDialog(context, '确定要删除图片吗', () {
+                  HttpUtil.getInstance()
+                        .delete("/api/v1/ums/task/deleteAttachment/" + id.toString(), )
+                        .then((val) {
+                      print(val);
+                      if (val['code'] == '10000') {
+                        GlobalEventBus.fireRefreshTask();
+                        Navigator.pop(context);
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: val['message'], gravity: ToastGravity.CENTER);
+                      }
+                    });
                 });
               },
             ),
@@ -136,16 +166,18 @@ class _ImageEditPageState extends State<ImageEditPage>
                     await imageFile
                         .writeAsBytesSync(pngBytes.buffer.asInt8List());
 
+                    File compressedFile = await FlutterNativeImage.compressImage(imageFile.path, quality: 60, percentage: 100);
+
                     FormData formData = new FormData.fromMap({});
 
                     formData.files.add(MapEntry(
-                      "files",
-                      MultipartFile.fromFileSync(imageFile.path,
+                      "file",
+                      MultipartFile.fromFileSync(compressedFile.path,
                           filename: 'image'),
                     ));
 
                     String url =
-                        "/api/v1/ums/task/reviewed/" + taskId.toString();
+                        "/api/v1/ums/task/attachment/" + id.toString();
 
                     print(formData);
                     HttpUtil.getInstance()
@@ -286,7 +318,7 @@ class _ScalableImageState extends State<ScalableImage> {
     ui.PictureRecorder recorder = ui.PictureRecorder();
     Canvas canvas = Canvas(recorder);
     _ScalableImagePainter painter = new _ScalableImagePainter(
-          _imageInfo.image, _offset, _scale, _points, _imageSize, context);
+          _imageInfo.image, Offset(0.0, 0.0), 1.0, _points, _imageSize, context, true);
 
     painter.paint(canvas, _imageSize);
     return recorder
@@ -312,7 +344,7 @@ class _ScalableImageState extends State<ScalableImage> {
       Widget painter = new CustomPaint(
         size: widget._size,
         painter: new _ScalableImagePainter(
-            _imageInfo.image, _offset, _scale, _points, _imageSize, context),
+            _imageInfo.image, _offset, _scale, _points, _imageSize, context, false),
         willChange: true,
       );
 
@@ -453,9 +485,10 @@ class _ScalableImagePainter extends CustomPainter {
   final BuildContext context;
 
   final Size imageSize;
+  final bool isExport;
 
   _ScalableImagePainter(this._image, this._offset, this.scale, this.points,
-      this.imageSize, this.context)
+      this.imageSize, this.context, this.isExport)
       : this._rect = new Rect.fromLTWH(_offset.dx, _offset.dy,
             _image.width.toDouble() / scale, _image.height.toDouble() / scale),
         mainPaint = Paint()..isAntiAlias = true;
@@ -493,13 +526,23 @@ class _ScalableImagePainter extends CustomPainter {
   }
 
   Offset _pointToImage(Offset offset) {
-    return pixelSpaceToDrawSpace(
+    if(isExport) {
+      return pixelSpaceToDrawSpace(
+        offset,
+        imageSize,
+        _offset,
+        imageSize,
+        scale);
+    } else {
+      return pixelSpaceToDrawSpace(
         offset,
         Size(ScreenUtil().setWidth(750),
             ScreenUtil().setHeight(750 * imageSize.height / imageSize.width)),
         _offset,
         imageSize,
         scale);
+    }
+    
   }
 
   @override

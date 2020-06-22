@@ -27,6 +27,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   TextEditingController _timeController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
   double score = 60;
+  var _eventSubscription;
   var data;
   @override
   void initState() {
@@ -38,7 +39,24 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         data = resp['data'];
       });
     });
+    _registerEvent();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription.cancel();
+    super.dispose();
+  }
+
+  _registerEvent() {
+    _eventSubscription =
+        GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
+      print("onEvent:" + event.eventType);
+      if (event.eventType == EVENT_REFRESH_TASK) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -207,7 +225,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     print('build image....');
     return InkWell(
       onTap: () {
-        
+
         Global.prefs.setInt("_attachmentId", attach['id']);
       Global.prefs.setString("_attachmentUrl", attach['url']);
       Routers.router
