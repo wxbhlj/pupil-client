@@ -20,8 +20,7 @@ import 'package:pupil/widgets/input.dart';
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
 import 'package:pupil/widgets/recorder.dart';
-import 'package:pupil/widgets/showtime_widget.dart';
-import 'package:wakelock/wakelock.dart';
+
 
 class TaskCreatePage extends StatefulWidget {
   @override

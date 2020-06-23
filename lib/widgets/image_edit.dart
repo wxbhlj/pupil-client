@@ -367,6 +367,7 @@ class _ScalableImageState extends State<ScalableImage> {
         onScaleUpdate: _isDraw ? null : _handleScaleUpdate,
         onScaleEnd: _isDraw ? null : _handleScaleEnd,
         onScaleStart: _isDraw ? null : _handleScaleStart,
+        
         onPanStart: !_isDraw
             ? null
             : (DragStartDetails details) {
@@ -516,7 +517,9 @@ class _ScalableImagePainter extends CustomPainter {
       ..isAntiAlias = true
       ..strokeWidth = 3.0
       ..strokeJoin = StrokeJoin.bevel;
-
+    print("image size = " + imageSize.toString());
+    print(ScreenUtil().setWidth(750). toString() + " --" + 
+            (ScreenUtil().setWidth(750) * imageSize.height / imageSize.width).toString());
     for (int i = 0; i < points.length - 1; i++) {
       //画线
       if (points[i] != null && points[i + 1] != null)
@@ -534,10 +537,11 @@ class _ScalableImagePainter extends CustomPainter {
         imageSize,
         scale);
     } else {
+      
       return pixelSpaceToDrawSpace(
         offset,
         Size(ScreenUtil().setWidth(750),
-            ScreenUtil().setHeight(750 * imageSize.height / imageSize.width)),
+            ScreenUtil().setWidth(750) * imageSize.height / imageSize.width),
         _offset,
         imageSize,
         scale);
