@@ -29,41 +29,38 @@ class _HomeIndexPageState extends State<HomeIndexPage>
 
   @override
   void initState() {
-    
     super.initState();
     _registerEvent();
- 
+
     user = Global.profile.user;
     print(user);
-    if(DateTime.now().millisecondsSinceEpoch - user.loginTime > 1000*60*60*24) {
-       //重新获取数据
-       _refreshUserDetail();
+    if (DateTime.now().millisecondsSinceEpoch - user.loginTime >
+        1000 * 60 * 60 * 24) {
+      //重新获取数据
+      _refreshUserDetail();
     }
   }
 
-
-
   _refreshUserDetail() {
     HttpUtil.getInstance()
-        .get("api/v1/ums/user/getDetail/" + Global.profile.user.userId.toString(), ).then((resp){
-          if(resp['code'] == '10000') {
-            user = User.fromJson(resp['data']);
-            print(user.avatar);
-            Provider.of<UserModel>(context, listen: false).user = user;
-            setState(() {
-              
-            });
-          }
-        });
+        .get(
+      "api/v1/ums/user/getDetail/" + Global.profile.user.userId.toString(),
+    )
+        .then((resp) {
+      if (resp['code'] == '10000') {
+        user = User.fromJson(resp['data']);
+        print(user.avatar);
+        Provider.of<UserModel>(context, listen: false).user = user;
+        setState(() {});
+      }
+    });
   }
 
   _registerEvent() {
     _eventSubscription =
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
       print("onEvent:" + event.eventType);
-      if (event.eventType == EVENT_REFRESH_TODOLIST) {
-     
-      }
+      if (event.eventType == EVENT_REFRESH_TODOLIST) {}
     });
   }
 
@@ -82,52 +79,66 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: Scaffold(
-   
-      body: SingleChildScrollView(
-        child: Column(
-        children: <Widget>[
-       
-          _buildTitle(),
-          LineChartWidget(),
-          //BarChartWidget(),
+            body: _buildBody(),
+          ),
+        ));
+  }
 
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
+  Future<Null> _refresh() async {
+    _refreshUserDetail();
+    return;
+  }
+
+  Widget _buildBody() {
+    return RefreshIndicator(
+          onRefresh: _refresh,
+          child: Column(
+          children: <Widget>[
+            _buildTitle(),
+            LineChartWidget(),
+            //BarChartWidget(),
+
+            Padding(
+              padding: EdgeInsets.all(ScreenUtil().setHeight(20)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  InkWell(
+                    child: _buildMenuItem("images/bujiao.png", "补记作业"),
+                    onTap: () {
+                      Routers.navigateTo(context, Routers.taskTodoListPage);
+                    },
+                  ),
+                  InkWell(
+                    child: _buildMenuItem("images/review.png", "复习作业"),
+                    onTap: () {
+                      Routers.navigateTo(context,
+                          Routers.taskReviewListPage + "?status=CHECKED");
+                    },
+                  ),
+                  InkWell(
+                    child: _buildMenuItem("images/emotion.png", "今日心情"),
+                    onTap: () {
+                      Routers.navigateTo(context, Routers.moonCreatePage);
+                    },
+                  ),
+/*
               InkWell(
-                child: _buildMenuItem("images/bujiao.png", "补拍作业"),
+                child: _buildMenuItem("images/houhui.png", "后悔药"),
                 onTap: () {
-                  Routers.navigateTo(context, Routers.taskTodoListPage);
+                  //Routers.navigateTo(context, Routers.taskReviewListPage+ "?status=CHECKED");
                 },
+              ),*/
+                ],
               ),
-              InkWell(
-                child: _buildMenuItem("images/review.png", "首轮复习"),
-                onTap: () {
-                  Routers.navigateTo(context, Routers.taskReviewListPage+ "?status=CHECKED");
-                },
-              ),
-              InkWell(
-                child: _buildMenuItem("images/review2.png", "深化复习"),
-                onTap: () {
-                  Routers.navigateTo(context, Routers.taskReviewListPage + "?status=REVIEWED");
-                },
-              ),
-              
-               
-            ],
-          ),
-          ),
- 
-          //(),
-        ],
-      ),
-      ),
-    ),
-        )
+            ),
+
+            //(),
+          ],
+        ),
+      
+      
     );
- 
   }
 
   Widget _buildTitle() {
@@ -157,28 +168,33 @@ class _HomeIndexPageState extends State<HomeIndexPage>
             Expanded(
               child: Text(
                 user.nick,
-                style:
-                    TextStyle(fontFamily: '微软雅黑', fontWeight: FontWeight.bold,fontSize: 18),
+                style: TextStyle(
+                    fontFamily: '微软雅黑',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
               ),
             ),
           ],
         ),
-        subtitle: Padding(padding: EdgeInsets.only(top:5), child: RatingBar(
-          initialRating: user.avgScore/20,
-          direction: Axis.horizontal,
-          allowHalfRating: true,
-          itemSize: ScreenUtil().setWidth(48),
-          itemCount: 5,
-          ratingWidget: RatingWidget(
-            full: Icon(Icons.star, color: Colors.orange),
-            half: Icon(
-              Icons.star_half,
-              color: Colors.orange,
+        subtitle: Padding(
+          padding: EdgeInsets.only(top: 5),
+          child: RatingBar(
+            initialRating: user.avgScore / 20,
+            direction: Axis.horizontal,
+            allowHalfRating: true,
+            itemSize: ScreenUtil().setWidth(48),
+            itemCount: 5,
+            ratingWidget: RatingWidget(
+              full: Icon(Icons.star, color: Colors.orange),
+              half: Icon(
+                Icons.star_half,
+                color: Colors.orange,
+              ),
+              empty: Icon(Icons.star_border, color: Colors.orange),
             ),
-            empty: Icon(Icons.star_border, color: Colors.orange),
+            itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
           ),
-          itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-        ),),
+        ),
         trailing: _buildCoins(),
         onTap: () {
           _refreshUserDetail();
@@ -208,19 +224,23 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           left: ScreenUtil().setWidth(0),
           top: ScreenUtil().setHeight(10),
           child: InkWell(
-            child: Image.asset('images/coins.png', width: ScreenUtil().setWidth(72),),
-     
-          ), 
+            child: Image.asset(
+              'images/coins.png',
+              width: ScreenUtil().setWidth(72),
+            ),
+          ),
         ),
         Positioned(
           right: ScreenUtil().setWidth(12),
           top: ScreenUtil().setHeight(32),
           child: Container(
             width: ScreenUtil().setWidth(96),
-            child: Center(child: Text(
-            (user.coinsTotal - user.coinsUsed).toString(),
-            style: TextStyle(color: Colors.white, fontSize: 12),
-          ),),
+            child: Center(
+              child: Text(
+                (user.coinsTotal - user.coinsUsed).toString(),
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
           ),
         )
       ],
@@ -238,7 +258,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           height: ScreenUtil().setHeight(156),
           decoration: new BoxDecoration(
             //color: Colors.white,
-            //设置四周圆角 角度
+            //设置���周圆角 角度
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
             //设置四周边框
             //border: new Border.all(width: 1, color: Theme.of(context).accentColor),
@@ -248,8 +268,11 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           left: ScreenUtil().setWidth(40),
           top: ScreenUtil().setHeight(20),
           child: InkWell(
-            child: Image.asset(image, width: ScreenUtil().setWidth(72), color: Theme.of(context).accentColor,),
-     
+            child: Image.asset(
+              image,
+              width: ScreenUtil().setWidth(72),
+              color: Theme.of(context).accentColor,
+            ),
           ),
         ),
         Positioned(
@@ -257,14 +280,15 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           top: ScreenUtil().setHeight(100),
           child: Container(
             width: ScreenUtil().setWidth(156),
-            child: Center(child: Text(title,
-            style: TextStyle(color: Colors.black, fontSize: 12),
-          ),),
+            child: Center(
+              child: Text(
+                title,
+                style: TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
           ),
         )
       ],
     );
   }
-
-
 }

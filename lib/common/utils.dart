@@ -48,6 +48,36 @@ class Utils {
     return twoDigits2(seconds~/60) + ":" + twoDigits2(seconds%60);
   }
 
+  static String translate(String course) {
+    if(course == '语文') {
+      return 'chinese';
+    } else if(course == '数学') {
+      return 'math';
+    } if(course == '英语') {
+      return 'english';
+    } else {
+      return 'logo';
+    }
+  }
+
+  static Widget buildStatus(String status) {
+    Widget text;
+    if (status == 'CHECKED') {
+      text = Text('已批改', style: TextStyle(color: Colors.green, fontSize: 10));
+    } else if (status == 'ASSIGNED') {
+      text = Text('需补拍', style: TextStyle(color: Colors.red, fontSize: 10));
+    } else if (status == 'UPLOAD') {
+      text = Text('未批改', style: TextStyle(color: Colors.black, fontSize: 10));
+    } else if(status == 'REVIEWED'){
+      text =
+          Text('复习一遍', style: TextStyle(color: Colors.lightGreen, fontSize: 10));
+    } else {
+      text =
+          Text('复习两遍', style: TextStyle(color: Colors.greenAccent, fontSize: 10));
+    }
+    return text;
+  }
+
 
   static String formatDate3(int time) {
     if (time == null) {

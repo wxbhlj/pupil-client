@@ -36,9 +36,10 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     String str = Global.prefs.getString("_chart_data");
     if (str != null && str.length > 0) {
       var resp = jsonDecode(str);
-      int dfTime = DateTime.now().millisecondsSinceEpoch - int.parse(resp['date'].toString());
-      print("dfTime = " + (dfTime/1000/60).toString());
-      if(dfTime < 1000* 60*60*12) {
+      int dfTime = DateTime.now().millisecondsSinceEpoch -
+          int.parse(resp['date'].toString());
+      print("dfTime = " + (dfTime / 1000 / 60).toString());
+      if (dfTime < 1000 * 60 * 60 * 12 && resp['code'] == '10000') {
         print('#########################return');
         _parseResp(resp);
         return;
@@ -50,14 +51,16 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           Global.profile.user.userId.toString(),
     )
         .then((resp) {
-
-      resp['date'] = DateTime.now().millisecondsSinceEpoch;
-      Global.prefs.setString("_chart_data", jsonEncode(resp));
-      _parseResp(resp);
+      if (resp['code'] == '10000') {
+        resp['date'] = DateTime.now().millisecondsSinceEpoch;
+        Global.prefs.setString("_chart_data", jsonEncode(resp));
+        _parseResp(resp);
+      }
     });
   }
 
   _parseResp(var resp) {
+    print(resp);
     double idx = 0;
     for (var item in resp['data']['list']) {
       scoreList.add(FlSpot(resp['data']['list'].length - idx - 1,

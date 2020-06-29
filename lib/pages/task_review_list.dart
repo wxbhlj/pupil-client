@@ -79,6 +79,8 @@ class _TaskReviewListPageState extends State<TaskReviewListPage> {
     );
   }
 
+  
+
   Widget _itemBuilder(BuildContext context, int index, tasks) {
     if (index.isOdd) {
       return Divider();
@@ -94,19 +96,7 @@ class _TaskReviewListPageState extends State<TaskReviewListPage> {
           Text(Utils.formatDate3(tasks[index]['created']))
         ],
       ),
-      leading: Container(
-          margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-          width: ScreenUtil().setWidth(96),
-          height: ScreenUtil().setHeight(96),
-          decoration: new BoxDecoration(
-            //color: Colors.white,
-            //设置四周圆角 角度
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-            //设置四周边框
-            border: new Border.all(width: 1, color: Colors.black),
-          ),
-          child: Center(child: Text(tasks[index]['course'], style: TextStyle(fontWeight: FontWeight.bold),),),
-        ),
+      leading: Image.asset('images/'+Utils.translate(tasks[index]['course'])+'.png', width:48),
       subtitle: Padding(padding: EdgeInsets.only(top:5), child: RatingBar(
           initialRating: tasks[index]['score']/20,
           direction: Axis.horizontal,

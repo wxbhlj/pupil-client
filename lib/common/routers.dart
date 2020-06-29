@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluro/fluro.dart';
+import 'package:pupil/pages/coin_exchange.dart';
+import 'package:pupil/pages/moon_create.dart';
 import 'package:pupil/pages/setting/nickname.dart';
 import 'package:pupil/pages/setting/password.dart';
 import 'package:pupil/pages/setting/settings.dart';
@@ -43,6 +45,8 @@ class Routers {
   static String taskTodoListPage = '/taskTodoListPage';
   static String taskReviewListPage = '/taskReviewListPage';
   static String taskReviewDetailPage = '/taskReviewDetailPage';
+  static String moonCreatePage = '/moonCreatePage';
+  static String coinExchangePage = '/coinExchangePage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -71,15 +75,17 @@ class Routers {
     router.define(passwordSettingPage,
         handler: _buildHandler(PasswordSettingPage()));
     router.define(taskManagerPage, handler: _buildHandler(TaskManagerPage()));
-    
-    router.define(taskTodoListPage, handler: _buildHandler(TaskTodoListPage()));
-router.define(imageEditPage, handler: _buildHandler(ImageEditPage()));
 
-    router.define(taskReviewDetailPage, handler:Handler(
+    router.define(taskTodoListPage, handler: _buildHandler(TaskTodoListPage()));
+    router.define(imageEditPage, handler: _buildHandler(ImageEditPage()));
+    router.define(moonCreatePage, handler: _buildHandler(MoonCreatePage()));
+    router.define(coinExchangePage, handler:_buildHandler(CoinExchangePage()));
+
+    router.define(taskReviewDetailPage, handler: Handler(
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {
       return TaskReviewDetailPage(params['taskId'].first);
     }));
-    router.define(taskReviewListPage, handler:Handler(
+    router.define(taskReviewListPage, handler: Handler(
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {
       return TaskReviewListPage(params['status'].first);
     }));

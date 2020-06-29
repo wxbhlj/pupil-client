@@ -95,52 +95,35 @@ class _TaskManagerPageState extends State<TaskManagerPage> {
       ),
       leading: Stack(
         children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-            width: ScreenUtil().setWidth(96),
-            height: ScreenUtil().setHeight(96),
-            decoration: new BoxDecoration(
-              //color: Colors.white,
-              //设置四周圆角 角度
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              //设置四周边框
-              border: new Border.all(width: 1, color: Colors.black),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            top: 8,
-            child: Container(
-              width: ScreenUtil().setWidth(96),
-              child: Center(
-                child: Text(
-                  tasks[index]['course'],
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ),
-          _buildStatus(tasks[index]['status']),
+          Image.asset(
+              'images/' + Utils.translate(tasks[index]['course']) + '.png',
+              width: 48),
         ],
       ),
-      subtitle: Padding(
-        padding: EdgeInsets.only(top: 5),
-        child: RatingBar(
-          initialRating: tasks[index]['score'] / 20,
-          direction: Axis.horizontal,
-          allowHalfRating: true,
-          itemSize: ScreenUtil().setWidth(32),
-          itemCount: 5,
-          ratingWidget: RatingWidget(
-            full: Icon(Icons.star, color: Colors.orange),
-            half: Icon(
-              Icons.star_half,
-              color: Colors.orange,
+      subtitle: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            //padding: EdgeInsets.only(top: 5),
+            child: RatingBar(
+              initialRating: tasks[index]['score'] / 20,
+              direction: Axis.horizontal,
+              allowHalfRating: true,
+              itemSize: ScreenUtil().setWidth(32),
+              itemCount: 5,
+              ratingWidget: RatingWidget(
+                full: Icon(Icons.star, color: Colors.orange),
+                half: Icon(
+                  Icons.star_half,
+                  color: Colors.orange,
+                ),
+                empty: Icon(Icons.star_border, color: Colors.orange),
+              ),
+              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
             ),
-            empty: Icon(Icons.star_border, color: Colors.orange),
           ),
-          itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-        ),
+          Utils.buildStatus(tasks[index]['status']),
+        ],
       ),
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {
@@ -161,37 +144,14 @@ class _TaskManagerPageState extends State<TaskManagerPage> {
         }
       },
       onLongPress: () {
-        showConfirmDialog(context, '确定要删除吗', (){
-          HttpUtil.instance.delete("/api/v1/ums/task/" + tasks[index]['id'].toString());
-          setState(() {
-            
-          });
+        showConfirmDialog(context, '确定要删除吗', () {
+          HttpUtil.instance
+              .delete("/api/v1/ums/task/" + tasks[index]['id'].toString());
+          setState(() {});
         });
       },
     );
   }
 
-  Widget _buildStatus(String status) {
-    Widget text;
-    if (status == 'CHECKED') {
-      text = Text('已批改', style: TextStyle(color: Colors.green, fontSize: 10));
-    } else if (status == 'ASSIGNED') {
-      text = Text('需补拍', style: TextStyle(color: Colors.red, fontSize: 10));
-    } else if (status == 'UPLOAD') {
-      text = Text('未批改', style: TextStyle(color: Colors.black, fontSize: 10));
-    } else {
-      text =
-          Text('已复习', style: TextStyle(color: Colors.lightGreen, fontSize: 10));
-    }
-    return Positioned(
-      left: 0,
-      bottom: 5,
-      child: Container(
-        width: ScreenUtil().setHeight(96),
-        child: Center(
-          child: text,
-        ),
-      ),
-    );
-  }
+  
 }

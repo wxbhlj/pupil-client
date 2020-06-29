@@ -1,6 +1,8 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_screenutil/screenutil.dart';
 import 'package:pupil/common/global.dart';
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
@@ -62,7 +64,7 @@ class _TaskCheckListPageState extends State<TaskCheckListPage> {
   Future _getData() async {
     
     return HttpUtil.getInstance()
-        .get("api/v1/ums/task/list?status=UPLOAD&userId=" + Global.profile.user.userId.toString(), );
+        .get("api/v1/ums/task/needCheck?userId=" + Global.profile.user.userId.toString(), );
   }
 
   Widget _createListView(BuildContext context, AsyncSnapshot snapshot) {
@@ -81,8 +83,43 @@ class _TaskCheckListPageState extends State<TaskCheckListPage> {
     }
     index = index ~/ 2;
     return ListTile(
-      title: Text(tasks[index]['title']  ),
-      subtitle: Text(Utils.formatDate(tasks[index]['created']) + ' 完成, 耗时 ' + Utils.twoDigits2(tasks[index]['spendTime']~/60)  +'分钟'),
+      title: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              tasks[index]['title'],
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text(Utils.formatDate3(tasks[index]['created']))
+        ],
+      ),
+      leading: Image.asset('images/'+Utils.translate(tasks[index]['course'])+'.png', width:48),
+      subtitle: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            //padding: EdgeInsets.only(top: 5),
+            child: RatingBar(
+              initialRating: tasks[index]['score'] / 20,
+              direction: Axis.horizontal,
+              allowHalfRating: true,
+              itemSize: ScreenUtil().setWidth(32),
+              itemCount: 5,
+              ratingWidget: RatingWidget(
+                full: Icon(Icons.star, color: Colors.orange),
+                half: Icon(
+                  Icons.star_half,
+                  color: Colors.orange,
+                ),
+                empty: Icon(Icons.star_border, color: Colors.orange),
+              ),
+              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+            ),
+          ),
+          Utils.buildStatus(tasks[index]['status']),
+        ],
+      ),
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {
         Global.prefs.setInt("_taskId", tasks[index]['id']);

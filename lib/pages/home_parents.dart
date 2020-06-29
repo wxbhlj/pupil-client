@@ -1,10 +1,6 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pupil/common/global.dart';
-
-
 
 import '../widgets/list_memu_item.dart';
 
@@ -16,10 +12,8 @@ class HomeParentsPage extends StatefulWidget {
 }
 
 class _HomeParentsPageState extends State<HomeParentsPage> {
-
   @override
   void initState() {
-
     super.initState();
   }
 
@@ -36,7 +30,6 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
       ),
       body: Column(
         children: <Widget>[
-      
           _correcting(),
           _arrangeWork(),
           _recordWork(),
@@ -44,18 +37,15 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
           SizedBox(
             height: ScreenUtil().setHeight(40),
           ),
-      
+          _coinsExchange(),
+          SizedBox(
+            height: ScreenUtil().setHeight(40),
+          ),
           _settings(),
-
-
         ],
       ),
-
     );
   }
-
-
- 
 
   Widget _correcting() {
     return buildListMenuItem(context, Icons.check, '检查作业', () {
@@ -82,13 +72,15 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
     });
   }
 
-
-   Widget _settings() {
-    return buildListMenuItem(context, Icons.settings, '系统设置', () {
-      Routers.router
-          .navigateTo(context, Routers.settingsPage, replace: false);
+  Widget _coinsExchange() {
+    return buildListMenuItem(context, Icons.attach_money, '金币兑换', () {
+      Routers.navigateTo(context, Routers.coinExchangePage);
     });
   }
 
-
+  Widget _settings() {
+    return buildListMenuItem(context, Icons.settings, '系统设置', () {
+      Routers.router.navigateTo(context, Routers.settingsPage, replace: false);
+    });
+  }
 }
