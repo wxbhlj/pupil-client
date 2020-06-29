@@ -97,7 +97,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
             gradient: LinearGradient(
               colors: [
                 Theme.of(context).accentColor,
-                Theme.of(context).accentColor.withOpacity(0.2),
+                Theme.of(context).accentColor.withOpacity(0.1),
               ],
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,

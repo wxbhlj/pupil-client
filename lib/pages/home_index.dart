@@ -48,6 +48,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     )
         .then((resp) {
       if (resp['code'] == '10000') {
+        Global.prefs.remove('_chart_data');
         user = User.fromJson(resp['data']);
         print(user.avatar);
         Provider.of<UserModel>(context, listen: false).user = user;
@@ -72,15 +73,10 @@ class _HomeIndexPageState extends State<HomeIndexPage>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark,
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: Scaffold(
-            body: _buildBody(),
-          ),
+    return Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Scaffold(
+          body: _buildBody(),
         ));
   }
 
@@ -91,12 +87,12 @@ class _HomeIndexPageState extends State<HomeIndexPage>
 
   Widget _buildBody() {
     return RefreshIndicator(
-          onRefresh: _refresh,
-          child: Column(
+      onRefresh: _refresh,
+      child: SingleChildScrollView(
+        child: Column(
           children: <Widget>[
-            _buildTitle(),
+            _buildHeader(),
             LineChartWidget(),
-            //BarChartWidget(),
 
             Padding(
               padding: EdgeInsets.all(ScreenUtil().setHeight(20)),
@@ -132,74 +128,89 @@ class _HomeIndexPageState extends State<HomeIndexPage>
                 ],
               ),
             ),
+            SizedBox(
+              height: 300,
+            )
 
             //(),
           ],
         ),
-      
-      
+      ),
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildHeader() {
     User user = Global.profile.user;
-    return Container(
-      padding: EdgeInsets.only(top: 25, bottom: 0),
-      child: ListTile(
-        leading: user.avatar != null && user.avatar.length > 0
-            ? Container(
-                width: ScreenUtil().setWidth(100),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    imageUrl: user.avatar,
-                    fit: BoxFit.fill,
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                  ),
-                ),
-              )
-            : Icon(
-                Icons.account_box,
-                size: ScreenUtil().setWidth(156),
-              ),
-        title: Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                user.nick,
-                style: TextStyle(
-                    fontFamily: '微软雅黑',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
-              ),
-            ),
-          ],
+    Color starColor = Colors.orange;
+    
+    if(Theme.of(context).accentColor.value == Colors.orange.value || Theme.of(context).accentColor.value == Colors.red.value) {
+      starColor = Colors.white;
+    }
+    return Stack(
+      children: <Widget>[
+        Container(
+          color: Theme.of(context).accentColor,
+          width: ScreenUtil().setWidth(750),
+          height: ScreenUtil().setHeight(250),
         ),
-        subtitle: Padding(
-          padding: EdgeInsets.only(top: 5),
+        Positioned(
+          top: ScreenUtil().setHeight(80),
+          left: ScreenUtil().setWidth(30),
+          child: user.avatar != null && user.avatar.length > 0
+              ? Container(
+                  width: ScreenUtil().setWidth(128),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      imageUrl: user.avatar,
+                      fit: BoxFit.fill,
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    ),
+                  ),
+                )
+              : Icon(
+                  Icons.account_box,
+                  size: ScreenUtil().setWidth(156),
+                ),
+        ),
+        Positioned(
+          top: ScreenUtil().setHeight(80),
+          left: ScreenUtil().setWidth(180),
+          child: Text(
+            user.nick,
+            style: TextStyle(
+                fontFamily: '微软雅黑', fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+        ),
+        Positioned(
+          top: ScreenUtil().setHeight(140),
+          left: ScreenUtil().setWidth(180),
           child: RatingBar(
             initialRating: user.avgScore / 20,
             direction: Axis.horizontal,
             allowHalfRating: true,
-            itemSize: ScreenUtil().setWidth(48),
+            itemSize: ScreenUtil().setWidth(64),
             itemCount: 5,
             ratingWidget: RatingWidget(
-              full: Icon(Icons.star, color: Colors.orange),
+              full: Icon(Icons.star, color: starColor),
               half: Icon(
                 Icons.star_half,
-                color: Colors.orange,
+                color: starColor,
               ),
-              empty: Icon(Icons.star_border, color: Colors.orange),
+              empty: Icon(Icons.star_border, color: starColor),
             ),
             itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+            //onRatingUpdate: (val){},
           ),
         ),
-        trailing: _buildCoins(),
-        onTap: () {
-          _refreshUserDetail();
-        },
-      ),
+        Positioned(
+          top: ScreenUtil().setHeight(80),
+          right: ScreenUtil().setWidth(30),
+          child: _buildCoins(),
+        ),
+      ],
     );
   }
 
@@ -228,6 +239,9 @@ class _HomeIndexPageState extends State<HomeIndexPage>
               'images/coins.png',
               width: ScreenUtil().setWidth(72),
             ),
+            onTap: () {
+              Routers.navigateTo(context, Routers.coinChangeListPage);
+            },
           ),
         ),
         Positioned(

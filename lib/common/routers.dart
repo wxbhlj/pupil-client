@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluro/fluro.dart';
+import 'package:pupil/pages/coin_change_list.dart';
 import 'package:pupil/pages/coin_exchange.dart';
 import 'package:pupil/pages/moon_create.dart';
 import 'package:pupil/pages/setting/nickname.dart';
@@ -47,6 +48,7 @@ class Routers {
   static String taskReviewDetailPage = '/taskReviewDetailPage';
   static String moonCreatePage = '/moonCreatePage';
   static String coinExchangePage = '/coinExchangePage';
+  static String coinChangeListPage = '/coinChangeListPage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -80,6 +82,7 @@ class Routers {
     router.define(imageEditPage, handler: _buildHandler(ImageEditPage()));
     router.define(moonCreatePage, handler: _buildHandler(MoonCreatePage()));
     router.define(coinExchangePage, handler:_buildHandler(CoinExchangePage()));
+    router.define(coinChangeListPage, handler:_buildHandler(CoinChangeListPage()));
 
     router.define(taskReviewDetailPage, handler: Handler(
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {
