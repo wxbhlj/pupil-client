@@ -183,7 +183,7 @@ class _ImageEditPageState extends State<ImageEditPage>
                     HttpUtil.getInstance()
                         .put(url, formData: formData)
                         .then((val) {
-                      Navigator.pop(context);
+                      //Navigator.pop(context);
                       print(val);
                       if (val['code'] == '10000') {
                         Navigator.pop(context);

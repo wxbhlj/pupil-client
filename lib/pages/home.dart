@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
-        color: Theme.of(context).accentColor,
+        color: Colors.white,
         shape: CircularNotchedRectangle(),
         child: _tabs(),
       ),
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
 
   Color _tabColors(idx) {
     if (idx == _currentIndex) {
-      return Colors.white;
+      return Theme.of(context).accentColor;
     } else {
       return Colors.black45;
     }
