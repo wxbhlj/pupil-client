@@ -186,6 +186,7 @@ class _ImageEditPageState extends State<ImageEditPage>
                       //Navigator.pop(context);
                       print(val);
                       if (val['code'] == '10000') {
+                        GlobalEventBus.fireRefreshTask();
                         Navigator.pop(context);
                       } else {
                         Fluttertoast.showToast(

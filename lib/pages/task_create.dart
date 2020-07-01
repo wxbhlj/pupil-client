@@ -90,7 +90,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
               ),
               Padding(
                 padding: EdgeInsets.only(top: 30),
-                child: buildStarInput((ret) {
+                child: buildStarInput(3, (ret) {
                   setState(() {
                     this.score = ret * 20;
                   });

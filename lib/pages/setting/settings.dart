@@ -66,6 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
             height: ScreenUtil().setHeight(40),
           ),
           _themeColor(),
+          _addOtherAccount(),
           _logout(),
         ],
       ),
@@ -76,6 +77,14 @@ class _SettingsPageState extends State<SettingsPage> {
     return buildListMenuItem(context, Icons.color_lens, '主题颜色', () {
       Routers.router
           .navigateTo(context, Routers.themeSettingPage, replace: false);
+    });
+  }
+
+  Widget _addOtherAccount() {
+    return buildListMenuItem(context, Icons.people, '添加账号', () {
+      Navigator.pop(context);
+      Routers.router
+          .navigateTo(context, Routers.loginPage, replace: true);
     });
   }
 

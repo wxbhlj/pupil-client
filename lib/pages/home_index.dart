@@ -48,9 +48,9 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     )
         .then((resp) {
       if (resp['code'] == '10000') {
-        Global.prefs.remove('_chart_data');
+        Global.prefs.remove("_chart_data_" + Global.profile.user.userId.toString());
         user = User.fromJson(resp['data']);
-        print(user.avatar);
+
         Provider.of<UserModel>(context, listen: false).user = user;
         setState(() {});
       }
@@ -156,7 +156,13 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         Positioned(
           top: ScreenUtil().setHeight(80),
           left: ScreenUtil().setWidth(30),
-          child: user.avatar != null && user.avatar.length > 0
+          child: InkWell(
+            onTap: () {
+              Global.profile.toNextUser();
+              Global.saveProfile();
+              Routers.router.navigateTo(context, Routers.homePage, replace: true);
+            },
+            child: user.avatar != null && user.avatar.length > 0
               ? Container(
                   width: ScreenUtil().setWidth(128),
                   child: ClipRRect(
@@ -174,6 +180,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
                   Icons.account_box,
                   size: ScreenUtil().setWidth(156),
                 ),
+          ),
         ),
         Positioned(
           top: ScreenUtil().setHeight(80),

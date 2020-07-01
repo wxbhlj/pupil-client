@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pupil/common/global.dart';
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
@@ -13,6 +15,7 @@ import 'package:pupil/widgets/dialog.dart';
 import 'package:pupil/widgets/input.dart';
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
+import 'package:pupil/widgets/recorder.dart';
 
 class TaskCheckDetailPage extends StatefulWidget {
   @override
@@ -22,16 +25,24 @@ class TaskCheckDetailPage extends StatefulWidget {
 class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   int taskId = 0;
 
+  List<SelectFile> files = List();
+
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
   TextEditingController _timeController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
-  double score = 60;
+  int score = 60;
   var _eventSubscription;
   var data;
   @override
   void initState() {
     taskId = Global.prefs.getInt("_taskId");
+    _refreshData();
+    _registerEvent();
+    super.initState();
+  }
+
+  _refreshData() {
     _getData().then((resp) {
       print("##################");
       print(resp);
@@ -39,8 +50,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         data = resp['data'];
       });
     });
-    _registerEvent();
-    super.initState();
   }
 
   @override
@@ -54,7 +63,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
       print("onEvent:" + event.eventType);
       if (event.eventType == EVENT_REFRESH_TASK) {
-        setState(() {});
+        _refreshData();
       }
     });
   }
@@ -63,7 +72,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('作业详情'),
+        title: Text('批改作业'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.delete),
@@ -97,9 +106,39 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     return Container(
       margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
       width: ScreenUtil().setWidth(750),
-      //height: ScreenUtil().setHeight(230),
-      child: _buildSubmitButton(),
+      height: ScreenUtil().setHeight(230),
+      child: Column(
+        children: <Widget>[
+          buildCameraAndRecordButtons(_selectImage, _record),
+          _buildSubmitButton()
+        ],
+      ),
     );
+  }
+
+  _record() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Recorder((path, duration) {
+            files.add(SelectFile(
+                file: LocalFileSystem().file(path),
+                type: 'sound',
+                duration: duration));
+            setState(() {});
+          });
+        });
+  }
+
+  Future _selectImage() async {
+    var image = await ImagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1080,
+        maxHeight: 1440,
+        imageQuality: 50);
+    print(image.path);
+    files.add(SelectFile(file: image, type: "image"));
+    setState(() {});
   }
 
   Widget _buildSubmitButton() {
@@ -107,7 +146,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       width: ScreenUtil().setWidth(750),
       child: RaisedButton(
         child: Text(
-          '批改完成',
+          '完成',
           style: TextStyle(color: Colors.white, fontSize: 18),
         ),
         color: Theme.of(context).primaryColor,
@@ -137,6 +176,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       _timeController.value =
           TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
     }
+    score = task['score'];
 
     return Container(
       margin: EdgeInsets.only(
@@ -168,9 +208,9 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           //_buildSlider(),
           Padding(
             padding: EdgeInsets.only(top:30),
-            child: buildStarInput((ret){
+            child: buildStarInput(task['score']/20,(ret){
             setState(() { 
-              this.score = ret * 20;
+              this.score = (ret * 20).toInt();
             });
           }),
           )
@@ -210,6 +250,15 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       }
     }
 
+    for (int i = 0; i < files.length; i++) {
+        SelectFile file = files[i];
+        if (file.type == 'image') {
+          imageList.add(_buildImage2(files[i]));
+        } else {
+          imageList.add(_buildSound2(files[i]));
+        }
+      }
+
     return Container(
       width: ScreenUtil().setWidth(750),
       margin: EdgeInsets.only(left: 0, right: 0),
@@ -221,6 +270,39 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     );
   }
 
+  Widget _buildImage2(SelectFile file) {
+    print('build image....');
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(PageRouteBuilder(
+            pageBuilder: (c, a, s) => PreviewImagesWidget(
+                  file.file.path,
+                )));
+      },
+      child: Container(
+        child: buildImageWithDel(file.file, () {
+          file.file.delete();
+          files.remove(file);
+          setState(() {});
+        }),
+      ),
+    );
+  }
+
+  Widget _buildSound2(SelectFile file) {
+    print('build sound....');
+    return InkWell(
+      onTap: () {
+        {}
+      },
+      child: SoundWidget(file, () {
+        file.file.delete();
+        files.remove(file);
+        setState(() {});
+      }),
+    );
+  }
+
   Widget _buildImage(attach) {
     print('build image....');
     return InkWell(
@@ -229,7 +311,8 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         Global.prefs.setInt("_attachmentId", attach['id']);
       Global.prefs.setString("_attachmentUrl", attach['url']);
       Routers.router
-          .navigateTo(context, Routers.imageEditPage , replace: false);
+          .navigateTo(context, Routers.imageEditPage , replace: false, 
+                      transitionDuration: Duration(milliseconds: 0));
       },
       child: Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
@@ -270,13 +353,23 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           );
         });
 
-    var formData = {
+
+    FormData formData = new FormData.fromMap({
       "comments": "",
       "id": data['task']['id'],
-      "score": score,
+      "score": score.toInt(),
       "title": _titleController.text,
       "spendTime": int.parse(_timeController.text) * 60
-    };
+    });
+
+    if (files.length > 0) {
+      for (SelectFile file in files) {
+        formData.files.add(MapEntry(
+          "files",
+          MultipartFile.fromFileSync(file.file.path, filename: file.type),
+        ));
+      }
+    }
     String url = "/api/v1/ums/task/checked";
 
     print(formData);

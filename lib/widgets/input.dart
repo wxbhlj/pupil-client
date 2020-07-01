@@ -67,9 +67,9 @@ Widget buildInput(
   );
 }
 
-Widget buildStarInput(Function fun) {
+Widget buildStarInput(double def, Function fun) {
     return RatingBar(
-        initialRating: 3,
+        initialRating: def,
         direction: Axis.horizontal,
         allowHalfRating: true,
         itemSize: ScreenUtil().setWidth(100),

@@ -33,7 +33,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
 
   _getLineData() {
-    String str = Global.prefs.getString("_chart_data");
+    String str = Global.prefs.getString("_chart_data_" + Global.profile.user.userId.toString());
     if (str != null && str.length > 0) {
       var resp = jsonDecode(str);
       int dfTime = DateTime.now().millisecondsSinceEpoch -
@@ -53,7 +53,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
         .then((resp) {
       if (resp['code'] == '10000') {
         resp['date'] = DateTime.now().millisecondsSinceEpoch;
-        Global.prefs.setString("_chart_data", jsonEncode(resp));
+        Global.prefs.setString("_chart_data_" + Global.profile.user.userId.toString(), jsonEncode(resp));
         _parseResp(resp);
       }
     });
@@ -72,18 +72,19 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       idx++;
     }
     course['yuwen'] =
-        (resp['data']['yuwen'] / resp['data']['yuwen_count'] / 20 * 100)
-                .toInt() /
-            100;
+        _calScore(resp['data']['yuwen'] , resp['data']['yuwen_count']);
     course['shuxue'] =
-        (resp['data']['shuxue'] / resp['data']['shuxue_count'] / 20 * 100)
-                .toInt() /
-            100;
+        _calScore(resp['data']['shuxue'] , resp['data']['shuxue_count']);
     course['yingyu'] =
-        (resp['data']['yingyu'] / resp['data']['yingyu_count'] / 20 * 100)
-                .toInt() /
-            100;
+        _calScore(resp['data']['yingyu'] , resp['data']['yingyu_count']);
     setState(() {});
+  }
+
+  double _calScore(int total, int item) {
+    if(item == 0) {
+      return 0;
+    } else 
+    return (total/item/20*100).toInt()/100;
   }
 
   Widget _buildBarChart() {
@@ -96,8 +97,8 @@ class _LineChartWidgetState extends State<LineChartWidget> {
             borderRadius: const BorderRadius.all(Radius.circular(18)),
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).accentColor.withOpacity(0.5),
-                Theme.of(context).accentColor.withOpacity(0.1),
+                Theme.of(context).accentColor.withOpacity(0.3),
+                Theme.of(context).accentColor.withOpacity(0.0),
               ],
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
@@ -105,7 +106,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           ),
           child: course.length < 3
               ? Center(
-                  child: Text('加载数据...'),
+                  child: Text('没有数据'),
                 )
               : BarChart(
                   BarChartData(
@@ -203,8 +204,8 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           borderRadius: const BorderRadius.all(Radius.circular(18)),
           gradient: LinearGradient(
             colors: [
-              Theme.of(context).accentColor.withOpacity(0.5),
-              Theme.of(context).accentColor.withOpacity(0.1),
+              Theme.of(context).accentColor.withOpacity(0.3),
+              Theme.of(context).accentColor.withOpacity(0.0),
             ],
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
