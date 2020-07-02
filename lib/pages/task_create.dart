@@ -15,12 +15,12 @@ import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 
 import 'package:pupil/widgets/common.dart';
+import 'package:pupil/widgets/course.dart';
 import 'package:pupil/widgets/input.dart';
 
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
 import 'package:pupil/widgets/recorder.dart';
-
 
 class TaskCreatePage extends StatefulWidget {
   @override
@@ -30,8 +30,9 @@ class TaskCreatePage extends StatefulWidget {
 class _TaskCreatePageState extends State<TaskCreatePage> {
   List<SelectFile> files = List();
 
-  List<String> _courseChips = <String>['语文', '数学', '英语', '其它'];
+
   String _course = '';
+  String _type = '';
   double score = 60;
 
   TextEditingController _titleController =
@@ -74,7 +75,24 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
           margin: EdgeInsets.only(left: 20, top: 0, right: 20),
           child: Column(
             children: <Widget>[
-              _buildCourseWidget(),
+              SizedBox(
+                height: ScreenUtil().setHeight(20),
+              ),
+              buildCourseSelectWidget(_course, Theme.of(context).accentColor,
+                  (val) {
+                setState(() {
+                  _course = val;
+                  _type = '';
+                  _titleController.value = TextEditingValue(text: _course + _type);
+                });
+              }),
+              buildSubTypeSelectWidget(
+                  _course, _type, Theme.of(context).accentColor, (val) {
+                setState(() {
+                  _type = val;
+                   _titleController.value = TextEditingValue(text: _course + _type);
+                });
+              }),
               buildInput3(
                   _titleController, '作业内容', false, null, TextInputType.text),
               Stack(
@@ -272,56 +290,6 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
     );
   }
 
-  Widget _buildCourseWidget() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(0, 20, 0, 10),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              //Icon(Icons.timer, color: Theme.of(context).accentColor),
-              Text(
-                ' 选择课程',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              )
-            ],
-          ),
-          Container(
-            width: ScreenUtil().setWidth(750),
-            margin: EdgeInsets.only(top: 0),
-            child: Wrap(
-              spacing: 0,
-              alignment: WrapAlignment.start,
-              children: _courseWidgets.toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Iterable<Widget> get _courseWidgets sync* {
-    for (String chip in _courseChips) {
-      yield Padding(
-        padding: EdgeInsets.only(left: 0, right: 10),
-        child: ChoiceChip(
-          backgroundColor: Colors.black12,
-          label: Text(chip),
-          labelStyle: TextStyle(fontWeight: FontWeight.bold),
-          labelPadding: EdgeInsets.only(left: 10, right: 10),
-          onSelected: (val) {
-            setState(() {
-              _course = val ? chip : _course;
-            });
-            _titleController.value = TextEditingValue(text: _course);
-          },
-          selectedColor: Theme.of(context).accentColor,
-          selected: _course == chip,
-        ),
-      );
-    }
-  }
-
   _submit() async {
     showDialog(
         context: context,
@@ -352,7 +320,8 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
               percentage: 100);
           formData.files.add(MapEntry(
             "files",
-            MultipartFile.fromFileSync(compressedFile.path, filename: file.type),
+            MultipartFile.fromFileSync(compressedFile.path,
+                filename: file.type),
           ));
         } else {
           formData.files.add(MapEntry(

@@ -13,6 +13,7 @@ import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 import 'package:pupil/common/utils.dart';
 import 'package:pupil/widgets/common.dart';
+import 'package:pupil/widgets/course.dart';
 import 'package:pupil/widgets/dialog.dart';
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
@@ -32,20 +33,8 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
   DateTime pausedTime;
   List<SelectFile> files = List();
 
-  List<String> _courseChips = <String>['语文', '数学', '英语', '其它'];
   String _course = '';
 
-  List<String> _typeChips = <String>[
-    '默写',
-    '抄写',
-    '复习',
-    '预习',
-    '订正',
-    '做试卷',
-    '练习册',
-    '背诵',
-    '其它'
-  ];
   String _type = '';
 
   GlobalKey<ShowTimerState> _showTimerState = GlobalKey();
@@ -73,10 +62,9 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
   _setTimer() {
     _countdownTimer = new Timer.periodic(new Duration(seconds: 1), (timer) {
       _seconds++;
-      try{
+      try {
         _showTimerState.currentState.refresh(_seconds, _outTime);
       } catch (e) {}
-      
     });
   }
 
@@ -120,16 +108,36 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     return Scaffold(
       appBar: ShowTimer(_showTimerState),
       body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            _buildCourseWidget(),
-            _buildTypeWidget(),
-            Divider(),
-            _buildContentWidget(),
-            SizedBox(
-              height: ScreenUtil().setHeight(200),
-            )
-          ],
+        child: Container(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+          ),
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                height: ScreenUtil().setHeight(20),
+              ),
+              buildCourseSelectWidget(_course, Theme.of(context).accentColor,
+                  (val) {
+                setState(() {
+                  _course = val;
+                  _type = '';
+                });
+              }),
+              buildSubTypeSelectWidget(
+                  _course, _type, Theme.of(context).accentColor, (val) {
+                setState(() {
+                  _type = val;
+                });
+              }),
+              Divider(),
+              _buildContentWidget(),
+              SizedBox(
+                height: ScreenUtil().setHeight(200),
+              )
+            ],
+          ),
         ),
       ),
       floatingActionButton: _buildFloatingActionButtion(context),
@@ -139,7 +147,7 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   Widget _buildContentWidget() {
     return Container(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
       child: Column(
         children: <Widget>[
           Row(
@@ -219,12 +227,13 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
       width: ScreenUtil().setWidth(750),
       height: ScreenUtil().setHeight(230),
       child: Column(
-        children: <Widget>[buildCameraAndRecordButtons(_selectImage, _record), _buildSubmitButton()],
+        children: <Widget>[
+          buildCameraAndRecordButtons(_selectImage, _record),
+          _buildSubmitButton()
+        ],
       ),
     );
   }
-
-  
 
   _record() {
     showModalBottomSheet(
@@ -242,7 +251,10 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
 
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 1080, maxHeight: 1440, imageQuality: 50);
+        source: ImageSource.camera,
+        maxWidth: 1080,
+        maxHeight: 1440,
+        imageQuality: 50);
     print(image.path);
     files.add(SelectFile(file: image, type: "image"));
     setState(() {});
@@ -264,114 +276,13 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildCourseWidget() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              //Icon(Icons.timer, color: Theme.of(context).accentColor),
-              Text(
-                ' 选择课程',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              )
-            ],
-          ),
-          Container(
-            width: ScreenUtil().setWidth(750),
-            margin: EdgeInsets.only(top: 0),
-            child: Wrap(
-              spacing: 0,
-              alignment: WrapAlignment.start,
-              children: _courseWidgets.toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Iterable<Widget> get _courseWidgets sync* {
-    for (String chip in _courseChips) {
-      yield Padding(
-        padding: EdgeInsets.only(left: 0, right: 10),
-        child: ChoiceChip(
-          backgroundColor: Colors.black12,
-          label: Text(chip),
-          labelStyle: TextStyle(fontWeight: FontWeight.bold),
-          labelPadding: EdgeInsets.only(left: 10, right: 10),
-          onSelected: (val) {
-            setState(() {
-              _course = val ? chip : _course;
-            });
-          },
-          selectedColor: Theme.of(context).accentColor,
-          selected: _course == chip,
-        ),
-      );
-    }
-  }
-
-  Widget _buildTypeWidget() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              //Icon(Icons.timer, color: Theme.of(context).accentColor),
-              Text(
-                ' 作业类型',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              )
-            ],
-          ),
-          Container(
-            width: ScreenUtil().setWidth(750),
-            margin: EdgeInsets.only(top: 0),
-            child: Wrap(
-              spacing: 0,
-              alignment: WrapAlignment.start,
-              children: _typeWidgets.toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Iterable<Widget> get _typeWidgets sync* {
-    for (String chip in _typeChips) {
-      yield Padding(
-        padding: EdgeInsets.only(left: 0, right: 10),
-        child: ChoiceChip(
-          backgroundColor: Colors.black12,
-          label: Text(chip),
-          labelStyle: TextStyle(fontWeight: FontWeight.bold),
-          labelPadding: EdgeInsets.only(left: 10, right: 10),
-          onSelected: (val) {
-            setState(() {
-              _type = val ? chip : _type;
-            });
-          },
-          selectedColor: Theme.of(context).accentColor,
-          selected: _type == chip,
-        ),
-      );
-    }
-  }
-
   _submit() {
-
-    if(files.length == 0) {
-       Fluttertoast.showToast(
-            msg: '请拍照或录音', gravity: ToastGravity.CENTER);
+    if (files.length == 0) {
+      Fluttertoast.showToast(msg: '请拍照或录音', gravity: ToastGravity.CENTER);
       return;
     }
-    if(_course == '' || _type == '') {
-      Fluttertoast.showToast(
-            msg: '请选择课程和作业类型', gravity: ToastGravity.CENTER);
+    if (_course == '' || _type == '') {
+      Fluttertoast.showToast(msg: '请选择课程和作业类型', gravity: ToastGravity.CENTER);
       return;
     }
     showDialog(
@@ -408,8 +319,8 @@ class _TaskNewPageState extends State<TaskNewPage> with WidgetsBindingObserver {
       Navigator.pop(context);
       print(val);
       if (val['code'] == '10000') {
-
-        Routers.router.navigateTo(context, Routers.taskSubmittedPage, replace: true);
+        Routers.router
+            .navigateTo(context, Routers.taskSubmittedPage, replace: true);
       } else {
         Fluttertoast.showToast(
             msg: val['message'], gravity: ToastGravity.CENTER);

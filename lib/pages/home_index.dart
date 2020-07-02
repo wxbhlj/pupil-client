@@ -74,6 +74,9 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar:PreferredSize(
+        child: Header(),
+        preferredSize: Size.fromHeight(ScreenUtil().setHeight(240))),
         resizeToAvoidBottomInset: false,
         body: Scaffold(
           body: _buildBody(),
@@ -91,7 +94,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            _buildHeader(),
+    
             LineChartWidget(),
 
             Padding(
@@ -129,7 +132,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
               ),
             ),
             SizedBox(
-              height: 300,
+              height: 200,
             )
 
             //(),
@@ -139,7 +142,69 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     );
   }
 
-  Widget _buildHeader() {
+
+  
+
+  Widget _buildMenuItem(String image, String title) {
+    return Stack(
+      //fit: StackFit.expand,
+      alignment: Alignment.topRight,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+          width: ScreenUtil().setWidth(156),
+          height: ScreenUtil().setHeight(156),
+          decoration: new BoxDecoration(
+            //color: Colors.white,
+            //设置���周圆角 角度
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            //设置四周边框
+            //border: new Border.all(width: 1, color: Theme.of(context).accentColor),
+          ),
+        ),
+        Positioned(
+          left: ScreenUtil().setWidth(40),
+          top: ScreenUtil().setHeight(20),
+          child: InkWell(
+            child: Image.asset(
+              image,
+              width: ScreenUtil().setWidth(72),
+              color: Theme.of(context).accentColor,
+            ),
+          ),
+        ),
+        Positioned(
+          left: ScreenUtil().setWidth(00),
+          top: ScreenUtil().setHeight(100),
+          child: Container(
+            width: ScreenUtil().setWidth(156),
+            child: Center(
+              child: Text(
+                title,
+                style: TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+
+class Header extends StatefulWidget implements PreferredSizeWidget {
+
+  @override
+  HeaderState createState() => HeaderState();
+
+  @override
+  Size get preferredSize => new Size.fromHeight(ScreenUtil().setHeight(100));
+}
+
+class HeaderState extends State<Header> {
+
+  @override
+  Widget build(BuildContext context) {
     User user = Global.profile.user;
     Color starColor = Colors.orange;
     
@@ -215,13 +280,12 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         Positioned(
           top: ScreenUtil().setHeight(80),
           right: ScreenUtil().setWidth(30),
-          child: _buildCoins(),
+          child: _buildCoins(user),
         ),
       ],
     );
   }
-
-  Widget _buildCoins() {
+  Widget _buildCoins(User user) {
     return Stack(
       //fit: StackFit.expand,
       alignment: Alignment.topRight,
@@ -267,49 +331,5 @@ class _HomeIndexPageState extends State<HomeIndexPage>
       ],
     );
   }
-
-  Widget _buildMenuItem(String image, String title) {
-    return Stack(
-      //fit: StackFit.expand,
-      alignment: Alignment.topRight,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-          width: ScreenUtil().setWidth(156),
-          height: ScreenUtil().setHeight(156),
-          decoration: new BoxDecoration(
-            //color: Colors.white,
-            //设置���周圆角 角度
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-            //设置四周边框
-            //border: new Border.all(width: 1, color: Theme.of(context).accentColor),
-          ),
-        ),
-        Positioned(
-          left: ScreenUtil().setWidth(40),
-          top: ScreenUtil().setHeight(20),
-          child: InkWell(
-            child: Image.asset(
-              image,
-              width: ScreenUtil().setWidth(72),
-              color: Theme.of(context).accentColor,
-            ),
-          ),
-        ),
-        Positioned(
-          left: ScreenUtil().setWidth(00),
-          top: ScreenUtil().setHeight(100),
-          child: Container(
-            width: ScreenUtil().setWidth(156),
-            child: Center(
-              child: Text(
-                title,
-                style: TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-        )
-      ],
-    );
-  }
 }
+

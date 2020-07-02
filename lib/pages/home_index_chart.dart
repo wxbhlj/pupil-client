@@ -259,7 +259,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           margin: 10,
           getTitles: (value) {
             if (value < xList.length) {
-              return xList[value.toInt()];
+              return value%3 == 0?xList[value.toInt()]:'';
             }
             return '';
           },
