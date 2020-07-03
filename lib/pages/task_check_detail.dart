@@ -97,14 +97,15 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           child: _buildBody(data),
         ),
       ),
-      resizeToAvoidBottomInset: false,
+ 
       floatingActionButton: _buildFloatingActionButtion(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _buildFloatingActionButtion(context) {
     return Container(
+ 
       margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
       width: ScreenUtil().setWidth(750),
       height: ScreenUtil().setHeight(230),

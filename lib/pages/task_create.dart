@@ -57,7 +57,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
         title: Text('补记作业'),
       ),
       body: _buildBody(),
-      resizeToAvoidBottomInset: false,
+
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
