@@ -14,8 +14,10 @@ class LineChartWidget extends StatefulWidget {
 }
 
 class _LineChartWidgetState extends State<LineChartWidget> {
-  List<FlSpot> scoreList = List();
-  List<FlSpot> timeList = List();
+  List<FlSpot> scoreList1 = List();
+  List<FlSpot> scoreList2 = List();
+  List<FlSpot> scoreList3 = List();
+
   List<String> xList = List();
   Map course = Map();
 
@@ -33,8 +35,9 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
 
   _getLineData() {
-    String str = Global.prefs.getString("_chart_data_" + Global.profile.user.userId.toString());
-    if (str != null && str.length > 0) {
+    String str = Global.prefs
+        .getString("_chart_data_" + Global.profile.user.userId.toString());
+    if (str != null && str.length > 0 && false) {
       var resp = jsonDecode(str);
       int dfTime = DateTime.now().millisecondsSinceEpoch -
           int.parse(resp['date'].toString());
@@ -47,13 +50,15 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     }
     HttpUtil.getInstance()
         .get(
-      "api/v1/ums/task/lineChart?status=CHECKED&userId=" +
+      "api/v1/ums/task/chart/home?userId=" +
           Global.profile.user.userId.toString(),
     )
         .then((resp) {
       if (resp['code'] == '10000') {
         resp['date'] = DateTime.now().millisecondsSinceEpoch;
-        Global.prefs.setString("_chart_data_" + Global.profile.user.userId.toString(), jsonEncode(resp));
+        Global.prefs.setString(
+            "_chart_data_" + Global.profile.user.userId.toString(),
+            jsonEncode(resp));
         _parseResp(resp);
       }
     });
@@ -62,29 +67,43 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   _parseResp(var resp) {
     print(resp);
     double idx = 0;
-    for (var item in resp['data']['list']) {
-      scoreList.add(FlSpot(resp['data']['list'].length - idx - 1,
+    for (var item in resp['data']['yuwendata']) {
+      scoreList1.add(FlSpot(resp['data']['yuwendata'].length - idx - 1,
           item['score'] / item['count'] / 20));
-      timeList.add(FlSpot(resp['data']['list'].length - idx - 1,
-          (item['spendTime'] / 60 / 60 * 100).toInt() / 100));
-
-      xList.insert(0, item['key']);
       idx++;
     }
+    idx = 0;
+    for (var item in resp['data']['shuxuedata']) {
+      scoreList2.add(FlSpot(resp['data']['shuxuedata'].length - idx - 1,
+          item['score'] / item['count'] / 20));
+      idx++;
+    }
+    idx = 0;
+    for (var item in resp['data']['yingyudata']) {
+      scoreList3.add(FlSpot(resp['data']['yingyudata'].length - idx - 1,
+          item['score'] / item['count'] / 20));
+      idx++;
+    }
+    idx = 0;
+    for (var item in resp['data']['date']) {
+      xList.insert(0, item);
+      idx++;
+    }
+
     course['yuwen'] =
-        _calScore(resp['data']['yuwen'] , resp['data']['yuwen_count']);
+        _calScore(resp['data']['yuwen'], resp['data']['yuwen_count']);
     course['shuxue'] =
-        _calScore(resp['data']['shuxue'] , resp['data']['shuxue_count']);
+        _calScore(resp['data']['shuxue'], resp['data']['shuxue_count']);
     course['yingyu'] =
-        _calScore(resp['data']['yingyu'] , resp['data']['yingyu_count']);
+        _calScore(resp['data']['yingyu'], resp['data']['yingyu_count']);
     setState(() {});
   }
 
   double _calScore(int total, int item) {
-    if(item == 0) {
+    if (item == 0) {
       return 0;
-    } else 
-    return (total/item/20*100).toInt()/100;
+    } else
+      return (total / item / 20 * 100).toInt() / 100;
   }
 
   Widget _buildBarChart() {
@@ -211,24 +230,43 @@ class _LineChartWidgetState extends State<LineChartWidget> {
             end: Alignment.topCenter,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16.0, left: 6.0),
-                child: scoreList.length == 0
-                    ? Center(child: Text('没有数据'))
-                    : LineChart(
-                        sampleData1(),
-                        swapAnimationDuration:
-                            const Duration(milliseconds: 250),
-                      ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0, left: 6.0),
+                    child: scoreList1.length == 0
+                        ? Center(child: Text('没有数据'))
+                        : LineChart(
+                            sampleData1(),
+                            swapAnimationDuration:
+                                const Duration(milliseconds: 250),
+                          ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+            Positioned(
+              bottom: ScreenUtil().setHeight(100),
+              right: 10,
+              child: Container(
+                width: ScreenUtil().setWidth(200),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Text('语文', style:TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11)),
+                    Text('数学', style:TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 11)),
+                    Text('英语', style:TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 11))
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
+            )
           ],
         ),
       ),
@@ -239,14 +277,23 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     return LineChartData(
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+          tooltipBgColor: Colors.blueGrey.withOpacity(0.5),
         ),
         touchCallback: (LineTouchResponse touchResponse) {},
         handleBuiltInTouches: true,
+        fullHeightTouchLine: true,
       ),
       gridData: FlGridData(
         show: false,
       ),
+      extraLinesData: ExtraLinesData(horizontalLines: [
+        HorizontalLine(
+          y: 4,
+          color: Colors.green.withOpacity(0.1),
+          strokeWidth: 1,
+          dashArray: [2, 2],
+        ),
+      ]),
       titlesData: FlTitlesData(
         bottomTitles: SideTitles(
           showTitles: true,
@@ -259,7 +306,9 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           margin: 10,
           getTitles: (value) {
             if (value < xList.length) {
-              return value%3 == 0?xList[value.toInt()]:'';
+              return (value % 3 == 0 || value == xList.length - 1)
+                  ? xList[value.toInt()]
+                  : '';
             }
             return '';
           },
@@ -274,36 +323,15 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           getTitles: (value) {
             switch (value.toInt()) {
               case 1:
-                return '1星';
-
+                return '1';
+              case 2:
+                return '2';
               case 3:
-                return '3星';
-
+                return '3';
+                case 4:
+                return '4';
               case 5:
-                return '5星';
-            }
-            return '';
-          },
-          margin: 8,
-          reservedSize: 30,
-        ),
-        rightTitles: SideTitles(
-          showTitles: true,
-          textStyle: const TextStyle(
-            color: Color(0xff75729e),
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-          getTitles: (value) {
-            switch (value.toInt()) {
-              case 1:
-                return '1小时';
-
-              case 3:
-                return '3小时';
-
-              case 5:
-                return '5小时';
+                return '5';
             }
             return '';
           },
@@ -319,7 +347,8 @@ class _LineChartWidgetState extends State<LineChartWidget> {
             width: 2,
           ),
           left: BorderSide(
-            color: Colors.transparent,
+            color: Color(0xff4e4965),
+            width: 2,
           ),
           right: BorderSide(
             color: Colors.transparent,
@@ -337,12 +366,10 @@ class _LineChartWidgetState extends State<LineChartWidget> {
 
   List<LineChartBarData> linesBarData1() {
     final LineChartBarData lineChartBarData1 = LineChartBarData(
-      spots: scoreList,
+      spots: scoreList1,
       isCurved: true,
-      colors: [
-        Utils.fanse(Theme.of(context).accentColor),
-      ],
-      barWidth: 2,
+      colors: [Colors.red],
+      barWidth: 3,
       isStrokeCapRound: true,
       dotData: FlDotData(
         show: false,
@@ -352,10 +379,10 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       ),
     );
     final LineChartBarData lineChartBarData2 = LineChartBarData(
-      spots: timeList,
+      spots: scoreList2,
       isCurved: true,
       colors: [
-        Colors.grey,
+        Colors.orange,
       ],
       barWidth: 2,
       isStrokeCapRound: true,
@@ -366,9 +393,21 @@ class _LineChartWidgetState extends State<LineChartWidget> {
         const Color(0x00aa4cfc),
       ]),
     );
-    return [
-      lineChartBarData1,
-      lineChartBarData2,
-    ];
+    final LineChartBarData lineChartBarData3 = LineChartBarData(
+      spots: scoreList3,
+      isCurved: true,
+      colors: [
+        Colors.blue,
+      ],
+      barWidth: 2,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+        show: false,
+      ),
+      belowBarData: BarAreaData(show: false, colors: [
+        const Color(0x00aa4cfc),
+      ]),
+    );
+    return [lineChartBarData1, lineChartBarData2, lineChartBarData3];
   }
 }

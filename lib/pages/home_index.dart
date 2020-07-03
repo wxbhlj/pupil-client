@@ -207,6 +207,7 @@ class HeaderState extends State<Header> {
   Widget build(BuildContext context) {
     User user = Global.profile.user;
     Color starColor = Colors.orange;
+    double avgStar = user.avgScore/20;
     
     if(Theme.of(context).accentColor.value == Colors.orange.value || Theme.of(context).accentColor.value == Colors.red.value) {
       starColor = Colors.white;
@@ -251,7 +252,7 @@ class HeaderState extends State<Header> {
           top: ScreenUtil().setHeight(80),
           left: ScreenUtil().setWidth(180),
           child: Text(
-            user.nick,
+            user.nick + " (" + avgStar.toString() + ")",
             style: TextStyle(
                 fontFamily: '微软雅黑', fontWeight: FontWeight.bold, fontSize: 18),
           ),
