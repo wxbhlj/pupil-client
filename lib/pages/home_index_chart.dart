@@ -127,7 +127,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                           return BarTooltipItem(
                             rod.y.toString(),
                             TextStyle(
-                              color: Utils.fanse(Theme.of(context).accentColor),
+                              color: Colors.grey,
                               fontWeight: FontWeight.bold,
                             ),
                           );
@@ -164,7 +164,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                       BarChartGroupData(x: 0, barRods: [
                         BarChartRodData(
                             y: course['yuwen'],
-                            color: Utils.fanse(Theme.of(context).accentColor),
+                            color: Utils.courseColor(course['yuwen']),
                             width: 30,
                             borderRadius: BorderRadius.circular(6))
                       ], showingTooltipIndicators: [
@@ -173,7 +173,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                       BarChartGroupData(x: 1, barRods: [
                         BarChartRodData(
                             y: course['shuxue'],
-                            color: Utils.fanse(Theme.of(context).accentColor),
+                            color: Utils.courseColor(course['yuwen']),
                             width: 30,
                             borderRadius: BorderRadius.circular(6))
                       ], showingTooltipIndicators: [
@@ -182,7 +182,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                       BarChartGroupData(x: 2, barRods: [
                         BarChartRodData(
                             y: course['yingyu'],
-                            color: Utils.fanse(Theme.of(context).accentColor),
+                            color: Utils.courseColor(course['yuwen']),
                             width: 30,
                             borderRadius: BorderRadius.circular(6))
                       ], showingTooltipIndicators: [

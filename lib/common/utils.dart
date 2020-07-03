@@ -39,6 +39,17 @@ class Utils {
   static Color fanse(Color color) {
     return Color.fromRGBO(255 - color.red, 255 - color.green, 255 - color.blue, 1);
   }
+  static Color courseColor(double val) {
+    if(val >= 4.5) {
+      return Colors.lightGreen;
+    } if(val >= 4) {
+      return Colors.green;
+    } if(val >= 3) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
+  }
 
   static String twoDigits2(int n) {
       if (n >= 10) return "$n";

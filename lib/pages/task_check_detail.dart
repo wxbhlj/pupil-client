@@ -31,7 +31,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       TextEditingController.fromValue(TextEditingValue(text: ''));
   TextEditingController _timeController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
-  int score = 60;
+  int score = 0;
   var _eventSubscription;
   var data;
   @override
@@ -76,9 +76,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: (){
-              showConfirmDialog(context, '确定要删除吗', (){
-                HttpUtil.instance.delete("/api/v1/ums/task/" + taskId.toString());
+            onPressed: () {
+              showConfirmDialog(context, '确定要删除吗', () {
+                HttpUtil.instance
+                    .delete("/api/v1/ums/task/" + taskId.toString());
                 GlobalEventBus.fireRefreshCheckList();
                 Navigator.pop(context);
               });
@@ -180,9 +181,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
 
     return Container(
       margin: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,),
+        left: 20,
+        right: 20,
+        top: 20,
+      ),
       child: Column(
         children: <Widget>[
           _buildAttachment(attachments),
@@ -190,13 +192,12 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           Divider(
             height: ScreenUtil().setHeight(20),
           ),
-          buildInput3(
-              _titleController, '标题', false, null, TextInputType.text),
+          buildInput3(_titleController, '标题', false, null, TextInputType.text),
 
           Stack(
             children: <Widget>[
-              buildInput3(_timeController, '作业耗时', false, null,
-                  TextInputType.number),
+              buildInput3(
+                  _timeController, '作业耗时', false, null, TextInputType.number),
               Positioned(
                 right: 0,
                 top: 15,
@@ -207,12 +208,12 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           //buildInput(_commonsController, null, '作业评语', false),
           //_buildSlider(),
           Padding(
-            padding: EdgeInsets.only(top:30),
-            child: buildStarInput(task['score']/20,(ret){
-            setState(() { 
-              this.score = (ret * 20).toInt();
-            });
-          }),
+            padding: EdgeInsets.only(top: 30),
+            child: task['classification'] == '其它'?Text(''):buildStarInput(task['score'] / 20, (ret) {
+              setState(() {
+                this.score = (ret * 20).toInt();
+              });
+            }),
           )
         ],
       ),
@@ -251,13 +252,13 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     }
 
     for (int i = 0; i < files.length; i++) {
-        SelectFile file = files[i];
-        if (file.type == 'image') {
-          imageList.add(_buildImage2(files[i]));
-        } else {
-          imageList.add(_buildSound2(files[i]));
-        }
+      SelectFile file = files[i];
+      if (file.type == 'image') {
+        imageList.add(_buildImage2(files[i]));
+      } else {
+        imageList.add(_buildSound2(files[i]));
       }
+    }
 
     return Container(
       width: ScreenUtil().setWidth(750),
@@ -307,12 +308,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     print('build image....');
     return InkWell(
       onTap: () {
-
         Global.prefs.setInt("_attachmentId", attach['id']);
-      Global.prefs.setString("_attachmentUrl", attach['url']);
-      Routers.router
-          .navigateTo(context, Routers.imageEditPage , replace: false, 
-                      transitionDuration: Duration(milliseconds: 0));
+        Global.prefs.setString("_attachmentUrl", attach['url']);
+        Routers.router.navigateTo(context, Routers.imageEditPage,
+            replace: false, transitionDuration: Duration(milliseconds: 0));
       },
       child: Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
@@ -341,8 +340,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     );
   }
 
-  
-
   _submit() {
     showDialog(
         context: context,
@@ -352,7 +349,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
             text: "正在提交...",
           );
         });
-
 
     FormData formData = new FormData.fromMap({
       "comments": "",
