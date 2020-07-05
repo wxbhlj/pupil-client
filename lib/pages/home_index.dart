@@ -87,9 +87,10 @@ class _HomeIndexPageState extends State<HomeIndexPage>
 
   Widget _buildFloatingActionButtion(context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(20, 20, 20, 10),
+      margin: EdgeInsets.fromLTRB(20, 0, 20, 10),
       width: ScreenUtil().setWidth(750),
       height: ScreenUtil().setHeight(128),
+      //color: Theme.of(context).accentColor.withOpacity(0.1),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[

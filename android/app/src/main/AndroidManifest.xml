@@ -11,7 +11,7 @@
     
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="pupil"
+        android:label="记作业"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity

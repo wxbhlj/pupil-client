@@ -30,7 +30,6 @@ class TaskCreatePage extends StatefulWidget {
 class _TaskCreatePageState extends State<TaskCreatePage> {
   List<SelectFile> files = List();
 
-
   String _course = '';
   String _type = '';
   double score = 60;
@@ -57,7 +56,6 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
         title: Text('补记作业'),
       ),
       body: _buildBody(),
-
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
@@ -83,14 +81,16 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
                 setState(() {
                   _course = val;
                   _type = '';
-                  _titleController.value = TextEditingValue(text: _course + _type);
+                  _titleController.value =
+                      TextEditingValue(text: _course + _type);
                 });
               }),
               buildSubTypeSelectWidget(
                   _course, _type, Theme.of(context).accentColor, (val) {
                 setState(() {
                   _type = val;
-                   _titleController.value = TextEditingValue(text: _course + _type);
+                  _titleController.value =
+                      TextEditingValue(text: _course + _type);
                 });
               }),
               buildInput3(
@@ -108,11 +108,15 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
               ),
               Padding(
                 padding: EdgeInsets.only(top: 30),
-                child: buildStarInput(3, (ret) {
-                  setState(() {
-                    this.score = ret * 20;
-                  });
-                }),
+                child: _type == '其它'
+                    ? Text('')
+                    : buildStarInput(3, (ret) {
+                        print("on star changed " + ret.toString());
+                        setState(() {
+                          this.score = (ret * 20).toInt();
+                          print(this.score.toString());
+                        });
+                      }),
               ),
               _buildContentWidget(),
               SizedBox(
@@ -279,7 +283,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
       width: ScreenUtil().setWidth(750),
       child: RaisedButton(
         child: Text(
-          '完成作业',
+          '保存作业',
           style: TextStyle(color: Colors.white, fontSize: 18),
         ),
         color: Theme.of(context).primaryColor,

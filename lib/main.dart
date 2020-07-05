@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
       child: Consumer2<ThemeModel, UserModel>(
         builder: (BuildContext context, themeModel, userModel, Widget child) {
           return MaterialApp(
+            title: '记作业',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               primarySwatch: themeModel.theme,
