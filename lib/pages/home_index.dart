@@ -48,7 +48,8 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     )
         .then((resp) {
       if (resp['code'] == '10000') {
-        Global.prefs.remove("_chart_data_" + Global.profile.user.userId.toString());
+        Global.prefs
+            .remove("_chart_data_" + Global.profile.user.userId.toString());
         user = User.fromJson(resp['data']);
 
         Provider.of<UserModel>(context, listen: false).user = user;
@@ -74,13 +75,53 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:PreferredSize(
-        child: Header(),
-        preferredSize: Size.fromHeight(ScreenUtil().setHeight(240))),
-        resizeToAvoidBottomInset: false,
-        body: Scaffold(
-          body: _buildBody(),
-        ));
+      appBar: PreferredSize(
+          child: Header(),
+          preferredSize: Size.fromHeight(ScreenUtil().setHeight(240))),
+      resizeToAvoidBottomInset: false,
+      body: _buildBody(),
+      floatingActionButton: _buildFloatingActionButtion(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  Widget _buildFloatingActionButtion(context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(20, 20, 20, 10),
+      width: ScreenUtil().setWidth(750),
+      height: ScreenUtil().setHeight(128),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          InkWell(
+            child: _buildMenuItem("images/write.png", "开始作业"),
+            onTap: () {
+              Routers.navigateTo(context, Routers.taskTodoListPage);
+            },
+          ),
+          /*
+          InkWell(
+            child: _buildMenuItem("images/correct.png", "订正作业"),
+            onTap: () {
+              Routers.navigateTo(context, Routers.taskCheckListPage);
+            },
+          ),*/
+          InkWell(
+            child: _buildMenuItem("images/review.png", "作业复习"),
+            onTap: () {
+              Routers.navigateTo(
+                  context, Routers.taskReviewListPage + "?status=CHECKED");
+            },
+          ),
+          InkWell(
+            child: _buildMenuItem("images/emotion.png", "今日心情"),
+            onTap: () {
+              Routers.navigateTo(context, Routers.moonCreatePage);
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Future<Null> _refresh() async {
@@ -94,43 +135,8 @@ class _HomeIndexPageState extends State<HomeIndexPage>
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-    
             LineChartWidget(),
 
-            Padding(
-              padding: EdgeInsets.all(ScreenUtil().setHeight(20)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  InkWell(
-                    child: _buildMenuItem("images/bujiao.png", "补记作业"),
-                    onTap: () {
-                      Routers.navigateTo(context, Routers.taskTodoListPage);
-                    },
-                  ),
-                  InkWell(
-                    child: _buildMenuItem("images/review.png", "复习作业"),
-                    onTap: () {
-                      Routers.navigateTo(context,
-                          Routers.taskReviewListPage + "?status=CHECKED");
-                    },
-                  ),
-                  InkWell(
-                    child: _buildMenuItem("images/emotion.png", "今日心情"),
-                    onTap: () {
-                      Routers.navigateTo(context, Routers.moonCreatePage);
-                    },
-                  ),
-/*
-              InkWell(
-                child: _buildMenuItem("images/houhui.png", "后悔药"),
-                onTap: () {
-                  //Routers.navigateTo(context, Routers.taskReviewListPage+ "?status=CHECKED");
-                },
-              ),*/
-                ],
-              ),
-            ),
             SizedBox(
               height: 200,
             )
@@ -142,9 +148,6 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     );
   }
 
-
-  
-
   Widget _buildMenuItem(String image, String title) {
     return Stack(
       //fit: StackFit.expand,
@@ -152,8 +155,8 @@ class _HomeIndexPageState extends State<HomeIndexPage>
       children: <Widget>[
         Container(
           margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-          width: ScreenUtil().setWidth(156),
-          height: ScreenUtil().setHeight(156),
+          width: ScreenUtil().setWidth(128),
+          height: ScreenUtil().setHeight(128),
           decoration: new BoxDecoration(
             //color: Colors.white,
             //设置���周圆角 角度
@@ -163,25 +166,25 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           ),
         ),
         Positioned(
-          left: ScreenUtil().setWidth(40),
-          top: ScreenUtil().setHeight(20),
+          left: ScreenUtil().setWidth(26),
+          top: ScreenUtil().setHeight(16),
           child: InkWell(
             child: Image.asset(
               image,
               width: ScreenUtil().setWidth(72),
-              color: Theme.of(context).accentColor,
+              //color: Theme.of(context).accentColor,
             ),
           ),
         ),
         Positioned(
           left: ScreenUtil().setWidth(00),
-          top: ScreenUtil().setHeight(100),
+          bottom: ScreenUtil().setHeight(5),
           child: Container(
-            width: ScreenUtil().setWidth(156),
+            width: ScreenUtil().setWidth(128),
             child: Center(
               child: Text(
                 title,
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: Colors.black, fontSize: 11),
               ),
             ),
           ),
@@ -191,9 +194,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   }
 }
 
-
 class Header extends StatefulWidget implements PreferredSizeWidget {
-
   @override
   HeaderState createState() => HeaderState();
 
@@ -202,14 +203,14 @@ class Header extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class HeaderState extends State<Header> {
-
   @override
   Widget build(BuildContext context) {
     User user = Global.profile.user;
     Color starColor = Colors.orange;
-    double avgStar = user.avgScore/20;
-    
-    if(Theme.of(context).accentColor.value == Colors.orange.value || Theme.of(context).accentColor.value == Colors.red.value) {
+    double avgStar = user.avgScore / 20;
+
+    if (Theme.of(context).accentColor.value == Colors.orange.value ||
+        Theme.of(context).accentColor.value == Colors.red.value) {
       starColor = Colors.white;
     }
     return Stack(
@@ -226,26 +227,27 @@ class HeaderState extends State<Header> {
             onTap: () {
               Global.profile.toNextUser();
               Global.saveProfile();
-              Routers.router.navigateTo(context, Routers.homePage, replace: true);
+              Routers.router
+                  .navigateTo(context, Routers.homePage, replace: true);
             },
             child: user.avatar != null && user.avatar.length > 0
-              ? Container(
-                  width: ScreenUtil().setWidth(128),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: user.avatar,
-                      fit: BoxFit.fill,
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
+                ? Container(
+                    width: ScreenUtil().setWidth(128),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: CachedNetworkImage(
+                        imageUrl: user.avatar,
+                        fit: BoxFit.fill,
+                        placeholder: (context, url) =>
+                            CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
                     ),
+                  )
+                : Icon(
+                    Icons.account_box,
+                    size: ScreenUtil().setWidth(156),
                   ),
-                )
-              : Icon(
-                  Icons.account_box,
-                  size: ScreenUtil().setWidth(156),
-                ),
           ),
         ),
         Positioned(
@@ -264,7 +266,7 @@ class HeaderState extends State<Header> {
             initialRating: user.avgScore / 20,
             direction: Axis.horizontal,
             allowHalfRating: true,
-            itemSize: ScreenUtil().setWidth(64),
+            itemSize: ScreenUtil().setWidth(48),
             itemCount: 5,
             ratingWidget: RatingWidget(
               full: Icon(Icons.star, color: starColor),
@@ -286,6 +288,7 @@ class HeaderState extends State<Header> {
       ],
     );
   }
+
   Widget _buildCoins(User user) {
     return Stack(
       //fit: StackFit.expand,
@@ -333,4 +336,3 @@ class HeaderState extends State<Header> {
     );
   }
 }
-

@@ -37,7 +37,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   _getLineData() {
     String str = Global.prefs
         .getString("_chart_data_" + Global.profile.user.userId.toString());
-    if (str != null && str.length > 0 && false) {
+    if (str != null && str.length > 0 ) {
       var resp = jsonDecode(str);
       int dfTime = DateTime.now().millisecondsSinceEpoch -
           int.parse(resp['date'].toString());
@@ -65,31 +65,40 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
 
   _parseResp(var resp) {
-    print(resp);
+    print(resp['data']['yuwendata']);
+    print(resp['data']['date']);
     double idx = 0;
+
+    for (var item in resp['data']['date']) {
+      xList.insert(0, item);
+      idx++;
+    }
+    idx = 0;
     for (var item in resp['data']['yuwendata']) {
-      scoreList1.add(FlSpot(resp['data']['yuwendata'].length - idx - 1,
+      scoreList1.add(FlSpot(xList.indexOf(item['key']).toDouble(),
           item['score'] / item['count'] / 20));
       idx++;
     }
     idx = 0;
     for (var item in resp['data']['shuxuedata']) {
-      scoreList2.add(FlSpot(resp['data']['shuxuedata'].length - idx - 1,
+      scoreList2.add(FlSpot(xList.indexOf(item['key']).toDouble(),
           item['score'] / item['count'] / 20));
       idx++;
     }
     idx = 0;
     for (var item in resp['data']['yingyudata']) {
-      scoreList3.add(FlSpot(resp['data']['yingyudata'].length - idx - 1,
+      scoreList3.add(FlSpot(xList.indexOf(item['key']).toDouble(),
           item['score'] / item['count'] / 20));
       idx++;
     }
     idx = 0;
+    xList.clear();
     for (var item in resp['data']['date']) {
       xList.insert(0, item);
       idx++;
     }
 
+   
     course['yuwen'] =
         _calScore(resp['data']['yuwen'], resp['data']['yuwen_count']);
     course['shuxue'] =
@@ -253,16 +262,16 @@ class _LineChartWidgetState extends State<LineChartWidget> {
               ],
             ),
             Positioned(
-              bottom: ScreenUtil().setHeight(100),
+              bottom: ScreenUtil().setHeight(90),
               right: 10,
               child: Container(
                 width: ScreenUtil().setWidth(200),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    Text('语文', style:TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11)),
-                    Text('数学', style:TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 11)),
-                    Text('英语', style:TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 11))
+                    Text('语文', style:TextStyle(color: Colors.red,  fontSize: 10)),
+                    Text('数学', style:TextStyle(color: Colors.orange, fontSize: 10)),
+                    Text('英语', style:TextStyle(color: Colors.blue,  fontSize: 10))
                   ],
                 ),
               ),
@@ -306,9 +315,11 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           margin: 10,
           getTitles: (value) {
             if (value < xList.length) {
+              //print(value.toString() + "  - " + xList.length.toString());
               return (value % 3 == 0 || value == xList.length - 1)
                   ? xList[value.toInt()]
                   : '';
+             //return xList[value.toInt()];
             }
             return '';
           },

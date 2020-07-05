@@ -178,7 +178,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       _timeController.value =
           TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
     }
-    score = task['score'];
+
 
     return Container(
       margin: EdgeInsets.only(
@@ -211,8 +211,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           Padding(
             padding: EdgeInsets.only(top: 30),
             child: task['classification'] == '其它'?Text(''):buildStarInput(task['score'] / 20, (ret) {
+              print("on star changed " + ret.toString());
               setState(() {
                 this.score = (ret * 20).toInt();
+                print(this.score.toString());
               });
             }),
           )
@@ -292,7 +294,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   }
 
   Widget _buildSound2(SelectFile file) {
-    print('build sound....');
+    
     return InkWell(
       onTap: () {
         {}
@@ -302,7 +304,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         files.remove(file);
         setState(() {});
       }),
-    );
+    ); 
   }
 
   Widget _buildImage(attach) {
@@ -332,7 +334,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   }
 
   Widget _buildSound(attach) {
-    print('build sound....');
+    print('build sound....' + this.score.toString());
     return InkWell(
       onTap: () {
         {}
@@ -350,14 +352,16 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
             text: "正在提交...",
           );
         });
-
+print("score = " + this.score.toString() + ", " + _titleController.text);
     FormData formData = new FormData.fromMap({
       "comments": "",
       "id": data['task']['id'],
-      "score": score.toInt(),
+      "score": this.score,
       "title": _titleController.text,
       "spendTime": int.parse(_timeController.text) * 60
     });
+    print("score = " + this.score.toString() + ", " + _titleController.text);
+    print(formData.fields);
 
     if (files.length > 0) {
       for (SelectFile file in files) {
@@ -367,6 +371,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         ));
       }
     }
+
     String url = "/api/v1/ums/task/checked";
 
     print(formData);

@@ -76,9 +76,9 @@ class Utils {
     if (status == 'CHECKED') {
       text = Text('已批改', style: TextStyle(color: Colors.green, fontSize: 10));
     } else if (status == 'ASSIGNED') {
-      text = Text('需补拍', style: TextStyle(color: Colors.red, fontSize: 10));
+      text = Text('未完成', style: TextStyle(color: Colors.red, fontSize: 10));
     } else if (status == 'UPLOAD') {
-      text = Text('未批改', style: TextStyle(color: Colors.black, fontSize: 10));
+      text = Text('待批改', style: TextStyle(color: Colors.black, fontSize: 10));
     } else if(status == 'REVIEWED'){
       text =
           Text('复习一遍', style: TextStyle(color: Colors.lightGreen, fontSize: 10));

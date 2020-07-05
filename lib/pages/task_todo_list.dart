@@ -1,6 +1,8 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_screenutil/screenutil.dart';
 import 'package:pupil/common/global.dart';
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
@@ -37,7 +39,7 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('补拍作业'),),
+      appBar: AppBar(title: Text('今日作业'),),
       body: FutureBuilder(
           future: _getData(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -56,13 +58,20 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
                 }
             }
           }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Routers.navigateTo(context, Routers.taskNewPage);
+        },
+      ),
     );
   }
 
   Future _getData() async {
     
     return HttpUtil.getInstance()
-        .get("api/v1/ums/task/list?status=ASSIGNED&userId=" + Global.profile.user.userId.toString(), );
+        .get("api/v1/ums/task/list/unchecked?userId=" + Global.profile.user.userId.toString(), );
   }
 
   Widget _createListView(BuildContext context, AsyncSnapshot snapshot) {
@@ -90,7 +99,39 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
           Text(Utils.formatDate3(tasks[index]['created']))
         ],
       ),
-      subtitle: Text(tasks[index]['course']),
+      leading: Stack(
+        children: <Widget>[
+          Image.asset(
+              'images/' + Utils.translate(tasks[index]['course']) + '.png',
+              width: 48),
+        ],
+      ),
+      subtitle: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            //padding: EdgeInsets.only(top: 5),
+            child: RatingBar(
+              initialRating: tasks[index]['score'] / 20,
+              direction: Axis.horizontal,
+              allowHalfRating: true,
+              itemSize: ScreenUtil().setWidth(32),
+              itemCount: 5,
+              ratingWidget: RatingWidget(
+                full: Icon(Icons.star, color: Colors.orange),
+                half: Icon(
+                  Icons.star_half,
+                  color: Colors.orange,
+                ),
+                empty: Icon(Icons.star_border, color: Colors.orange),
+              ),
+              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+            ),
+          ),
+          Utils.buildStatus(tasks[index]['status']),
+        ],
+      ),
+     
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {
 
