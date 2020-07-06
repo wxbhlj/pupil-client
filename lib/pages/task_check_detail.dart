@@ -309,6 +309,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
 
   Widget _buildImage(attach) {
     print('build image....');
+    print(ScreenUtil().setWidth(165).toString() + " -- " + ScreenUtil().setHeight(165).toString());
     return InkWell(
       onTap: () {
         Global.prefs.setInt("_attachmentId", attach['id']);
@@ -319,7 +320,8 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       child: Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
         width: ScreenUtil().setWidth(165),
-        height: ScreenUtil().setHeight(165),
+        height: ScreenUtil().setWidth(165),
+   
         child: ClipRRect(
           child: CachedNetworkImage(
             imageUrl: attach['url'],

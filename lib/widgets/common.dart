@@ -13,7 +13,8 @@ Widget buildImageWithDel(_image, Function fun) {
       Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
         width: ScreenUtil().setWidth(165),
-        height: ScreenUtil().setHeight(165),
+        height: ScreenUtil().setWidth(165),
+
         child: ClipRRect(
           child: Image.file(_image, fit: BoxFit.fill),
           borderRadius: BorderRadius.circular(8),
