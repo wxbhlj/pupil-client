@@ -97,7 +97,8 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           child: _buildBody(data),
         ),
       ),
- 
+
+      resizeToAvoidBottomPadding: false,
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );

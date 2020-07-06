@@ -86,6 +86,7 @@ class _TaskAssignPageState extends State<TaskAssignPage> {
           ),
         ),
       ),
+      resizeToAvoidBottomPadding: false,
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
