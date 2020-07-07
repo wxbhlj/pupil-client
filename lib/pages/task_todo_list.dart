@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/screenutil.dart';
@@ -22,9 +20,7 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
       print("onEvent:" + event.eventType);
       if (event.eventType == EVENT_REFRESH_CHECKLIST) {
-        setState(() {
-          
-        });
+        setState(() {});
       }
     });
     super.initState();
@@ -39,7 +35,9 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('今日作业'),),
+      appBar: AppBar(
+        title: Text('今日作业'),
+      ),
       body: FutureBuilder(
           future: _getData(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -48,7 +46,7 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
                 return Center(
                   child: Text('加载中...'),
                 );
-               
+
               default: //如果_calculation执行完毕
                 if (snapshot.hasError) {
                   //若_calculation执行出现异常
@@ -69,13 +67,13 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
   }
 
   Future _getData() async {
-    
-    return HttpUtil.getInstance()
-        .get("api/v1/ums/task/list/unchecked?userId=" + Global.profile.user.userId.toString(), );
+    return HttpUtil.getInstance().get(
+      "api/v1/ums/task/list/unchecked?userId=" +
+          Global.profile.user.userId.toString(),
+    );
   }
 
   Widget _createListView(BuildContext context, AsyncSnapshot snapshot) {
-
     print(snapshot.data['data']);
     var items = snapshot.data['data'];
     return ListView.builder(
@@ -93,8 +91,10 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
       title: Row(
         children: <Widget>[
           Expanded(
-            child: Text(tasks[index]['title'] ,overflow: TextOverflow.ellipsis,),
-
+            child: Text(
+              tasks[index]['title'],
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           Text(Utils.formatDate3(tasks[index]['created']))
         ],
@@ -131,14 +131,13 @@ class _TaskTodoListPageState extends State<TaskTodoListPage> {
           Utils.buildStatus(tasks[index]['status']),
         ],
       ),
-     
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {
-
-        Global.prefs.setInt("_taskId", tasks[index]['id']);
-              Global.prefs.setString("_taskTitle", tasks[index]['title']);
-              Routers.navigateTo(context, Routers.taskDoitPage);
-  
+        if (tasks[index]['status'] == 'ASSIGNED') {
+          Global.prefs.setInt("_taskId", tasks[index]['id']);
+          Global.prefs.setString("_taskTitle", tasks[index]['title']);
+          Routers.navigateTo(context, Routers.taskDoitPage);
+        }
       },
     );
   }

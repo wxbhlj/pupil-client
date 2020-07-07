@@ -41,7 +41,7 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
           SizedBox(
             height: ScreenUtil().setHeight(40),
           ),
-          //_settings(),
+          _settings(),
         ],
       ),
     );
@@ -77,10 +77,10 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
       Routers.navigateTo(context, Routers.coinExchangePage);
     });
   }
-/*
+
   Widget _settings() {
     return buildListMenuItem(context, Icons.settings, '系统设置', () {
       Routers.router.navigateTo(context, Routers.settingsPage, replace: false);
     });
-  }*/
+  }
 }

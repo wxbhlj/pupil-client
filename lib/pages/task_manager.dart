@@ -117,7 +117,7 @@ class _TaskManagerPageState extends State<TaskManagerPage> {
                   Icons.star_half,
                   color: Colors.orange,
                 ),
-                empty: Icon(Icons.star_border, color: Colors.orange),
+                empty: Icon(Icons.star_border, color: Colors.white),
               ),
               itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
             ),

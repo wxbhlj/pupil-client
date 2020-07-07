@@ -11,6 +11,7 @@ import 'package:pupil/common/global.dart';
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
+import 'package:pupil/common/utils.dart';
 import 'package:pupil/models/user.dart';
 import 'package:pupil/states/user_model.dart';
 
@@ -39,6 +40,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
       //重新获取数据
       _refreshUserDetail();
     }
+    _refreshTodoList();
   }
 
   _refreshUserDetail() {
@@ -56,6 +58,22 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         setState(() {});
       }
     });
+  }
+
+  _refreshTodoList() {
+    _getTodoList().then((resp) {
+      setState(() {
+        tasks = resp['data'];
+        print(tasks);
+      });
+    });
+  }
+
+  Future _getTodoList() async {
+    return HttpUtil.getInstance().get(
+      "api/v1/ums/task/todoList?userId=" +
+          Global.profile.user.userId.toString(),
+    );
   }
 
   _registerEvent() {
@@ -80,118 +98,140 @@ class _HomeIndexPageState extends State<HomeIndexPage>
           preferredSize: Size.fromHeight(ScreenUtil().setHeight(240))),
       resizeToAvoidBottomInset: false,
       body: _buildBody(),
-      floatingActionButton: _buildFloatingActionButtion(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    );
-  }
-
-  Widget _buildFloatingActionButtion(context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(20, 0, 20, 10),
-      width: ScreenUtil().setWidth(750),
-      height: ScreenUtil().setHeight(128),
-      //color: Theme.of(context).accentColor.withOpacity(0.1),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          InkWell(
-            child: _buildMenuItem("images/write.png", "开始作业"),
-            onTap: () {
-              Routers.navigateTo(context, Routers.taskTodoListPage);
-            },
-          ),
-          /*
-          InkWell(
-            child: _buildMenuItem("images/correct.png", "订正作业"),
-            onTap: () {
-              Routers.navigateTo(context, Routers.taskCheckListPage);
-            },
-          ),*/
-          InkWell(
-            child: _buildMenuItem("images/review.png", "作业复习"),
-            onTap: () {
-              Routers.navigateTo(
-                  context, Routers.taskReviewListPage + "?status=CHECKED");
-            },
-          ),
-          InkWell(
-            child: _buildMenuItem("images/emotion.png", "今日心情"),
-            onTap: () {
-              Routers.navigateTo(context, Routers.moonCreatePage);
-            },
-          ),
-        ],
-      ),
+      //floatingActionButton: _buildFloatingActionButtion(context),
+      //floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Future<Null> _refresh() async {
     _refreshUserDetail();
+    _refreshTodoList();
     return;
   }
 
   Widget _buildBody() {
     return RefreshIndicator(
       onRefresh: _refresh,
-      child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            LineChartWidget(),
+      child: Column(
+        children: <Widget>[
+          LineChartWidget(),
+          Container(
+            margin: EdgeInsets.only(left: 15, top: 20, bottom: 10),
+            alignment: Alignment.topLeft,
+            child: Text(
+              '今日作业',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2),
+            ),
+          ),
+          Expanded(
+            child: MediaQuery.removePadding(
+              removeTop: true,
+              context: context,
+              child: _buildTaskList(),
+            ),
+          ),
+          SizedBox(
+            height: 00,
+          )
 
-            SizedBox(
-              height: 200,
-            )
-
-            //(),
-          ],
-        ),
+          //(),
+        ],
       ),
     );
   }
 
-  Widget _buildMenuItem(String image, String title) {
-    return Stack(
-      //fit: StackFit.expand,
-      alignment: Alignment.topRight,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-          width: ScreenUtil().setWidth(128),
-          height: ScreenUtil().setHeight(128),
-          decoration: new BoxDecoration(
-            //color: Colors.white,
-            //设置���周圆角 角度
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-            //设置四周边框
-            //border: new Border.all(width: 1, color: Theme.of(context).accentColor),
-          ),
-        ),
-        Positioned(
-          left: ScreenUtil().setWidth(26),
-          top: ScreenUtil().setHeight(16),
-          child: InkWell(
-            child: Image.asset(
-              image,
-              width: ScreenUtil().setWidth(72),
-              //color: Theme.of(context).accentColor,
-            ),
-          ),
-        ),
-        Positioned(
-          left: ScreenUtil().setWidth(00),
-          bottom: ScreenUtil().setHeight(5),
-          child: Container(
-            width: ScreenUtil().setWidth(128),
-            child: Center(
-              child: Text(
-                title,
-                style: TextStyle(color: Colors.black, fontSize: 11),
-              ),
-            ),
-          ),
-        )
-      ],
+  Widget _buildTaskList() {
+    if (tasks == null) {
+      return Text('');
+    }
+    return Container(
+      width: ScreenUtil().setWidth(750),
+      child: ListView.separated(
+        itemCount: tasks.length,
+        itemBuilder: (BuildContext context, int index) {
+          return _itemBuilder(context, index, tasks);
+        },
+        separatorBuilder: (BuildContext context, int index) {
+          return new Divider(
+            height: 0,
+            color: Colors.grey[300],
+          );
+        },
+      ),
     );
+  }
+
+  Widget _itemBuilder(BuildContext context, int index, tasks) {
+    return ListTile(
+      title: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              tasks[index]['title'],
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text(Utils.formatDate3(tasks[index]['created']))
+        ],
+      ),
+      leading: Image.asset(
+          'images/' + Utils.translate(tasks[index]['course']) + '.png',
+          width: 48),
+      subtitle: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            //padding: EdgeInsets.only(top: 5),
+            child: RatingBar(
+              initialRating: tasks[index]['score'] / 20,
+              direction: Axis.horizontal,
+              allowHalfRating: true,
+              itemSize: ScreenUtil().setWidth(32),
+              itemCount: 5,
+              ratingWidget: RatingWidget(
+                full: Icon(Icons.star, color: Colors.orange),
+                half: Icon(
+                  Icons.star_half,
+                  color: Colors.orange,
+                ),
+                empty: Icon(Icons.star_border, color: Colors.white54),
+              ),
+              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+            ),
+          ),
+          _buildStatus(tasks[index]['status']),
+        ],
+      ),
+      trailing: Icon(Icons.keyboard_arrow_right),
+      onTap: () {
+        if (tasks[index]['status'] == 'ASSIGNED') {
+          Routers.navigateTo(context, Routers.taskDoitPage);
+        } else {
+          Global.prefs.setInt("_taskId", tasks[index]['id']);
+          Global.prefs.setString("_taskTitle", tasks[index]['title']);
+          Routers.navigateTo(
+              context,
+              Routers.taskReviewDetailPage +
+                  "?taskId=" +
+                  tasks[index]['id'].toString());
+        }
+      },
+    );
+  }
+
+  Widget _buildStatus(String status) {
+    Widget text;
+    if (status == 'ASSIGNED') {
+      text = Text('快去提交', style: TextStyle(color: Colors.red, fontSize: 11));
+    } else {
+      text = Text('快去复习',
+          style: TextStyle(color: Colors.lightGreen, fontSize: 11));
+    }
+    return text;
   }
 }
 
@@ -273,9 +313,11 @@ class HeaderState extends State<Header> {
               full: Icon(Icons.star, color: starColor),
               half: Icon(
                 Icons.star_half,
-                color: starColor,
+                color: starColor
+                    .withOpacity(user.avgScore / 20 - (user.avgScore ~/ 20)),
               ),
-              empty: Icon(Icons.star_border, color: starColor),
+              empty:
+                  Icon(Icons.star_border, color: Theme.of(context).accentColor),
             ),
             itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
             //onRatingUpdate: (val){},

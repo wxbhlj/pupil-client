@@ -30,7 +30,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[_buildLineChart(), _buildBarChart()],
+      children: <Widget>[_buildLineChart()],
     );
   }
 
@@ -114,7 +114,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     } else
       return (total / item / 20 * 100).toInt() / 100;
   }
-
+  /*
   Widget _buildBarChart() {
     return AspectRatio(
         aspectRatio: 2,
@@ -220,7 +220,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                   ),
                 ),
         ));
-  }
+  }*/
 
   Widget _buildLineChart() {
     return AspectRatio(
@@ -265,13 +265,14 @@ class _LineChartWidgetState extends State<LineChartWidget> {
               bottom: ScreenUtil().setHeight(90),
               right: 10,
               child: Container(
-                width: ScreenUtil().setWidth(200),
+                width: ScreenUtil().setWidth(500),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    Text('语文', style:TextStyle(color: Colors.red,  fontSize: 10)),
-                    Text('数学', style:TextStyle(color: Colors.orange, fontSize: 10)),
-                    Text('英语', style:TextStyle(color: Colors.blue,  fontSize: 10))
+                    Text('月平均 ', style:TextStyle(color: Colors.black38,  fontSize: 11)),
+                    Text(' 语文:' + course['yuwen'].toString(), style:TextStyle(color: Colors.red,  fontSize: 11)),
+                    Text(' 数学:' + course['shuxue'].toString(), style:TextStyle(color: Colors.orange, fontSize: 11)),
+                    Text(' 英语:' + course['yingyu'].toString(), style:TextStyle(color: Colors.blue,  fontSize: 11))
                   ],
                 ),
               ),
@@ -316,7 +317,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           getTitles: (value) {
             if (value < xList.length) {
               //print(value.toString() + "  - " + xList.length.toString());
-              return (value % 3 == 0 || value == xList.length - 1)
+              return ((value % 3 == 0 || value == xList.length - 1 ) && value != xList.length - 2)
                   ? xList[value.toInt()]
                   : '';
              //return xList[value.toInt()];

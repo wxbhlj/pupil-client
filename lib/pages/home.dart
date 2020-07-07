@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    list..add(HomeIndexPage())..add(HomeParentsPage())..add(SettingsPage());
+    list..add(HomeIndexPage())..add(HomeParentsPage());
     _eventSubscription =
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
       print("C onEvent:" + event.eventType);
@@ -49,13 +49,13 @@ class _HomePageState extends State<HomePage> {
     ScreenUtil.init(context, width: 750, height: 1334);
     return Scaffold(
       body: list[_currentIndex],
-      /*floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           Routers.navigateTo(context, Routers.taskNewPage);
         },
         child: Icon(Icons.create),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,*/
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         shape: CircularNotchedRectangle(),
@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
       children: <Widget>[
         _tabItem(0, Icons.home, '学生'),
         _tabItem(1, Icons.people, '家长'),
-        _tabItem(2, Icons.settings, '设置')
+    
       ],
     );
   }
