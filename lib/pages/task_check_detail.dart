@@ -97,7 +97,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           child: _buildBody(data),
         ),
       ),
-
       resizeToAvoidBottomPadding: false,
       floatingActionButton: _buildFloatingActionButtion(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -106,8 +105,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
 
   Widget _buildFloatingActionButtion(context) {
     return Container(
- 
-      margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
+      margin: EdgeInsets.fromLTRB(ScreenUtil().setWidth(20), 0, ScreenUtil().setWidth(20), 0),
       width: ScreenUtil().setWidth(750),
       height: ScreenUtil().setHeight(230),
       child: Column(
@@ -145,18 +143,40 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   }
 
   Widget _buildSubmitButton() {
-    return Container(
-      width: ScreenUtil().setWidth(750),
-      child: RaisedButton(
-        child: Text(
-          '完成',
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-        color: Theme.of(context).primaryColor,
-        onPressed: () {
-          _submit();
-        },
-      ),
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Container(
+            width: ScreenUtil().setWidth(350),
+            child: RaisedButton(
+            child: Text(
+              '退回订正',
+              style: TextStyle(color: Colors.white, fontSize: 14),
+            ),
+            color: Colors.red,
+            onPressed: () {
+              _return();
+            },
+          ),
+          ),
+
+          Container(
+            width: ScreenUtil().setWidth(350),
+            child: RaisedButton(
+            child: Text(
+              '完成检查',
+              style: TextStyle(color: Colors.white, fontSize: 14),
+            ),
+            color: Theme.of(context).primaryColor,
+            onPressed: () {
+              _submit();
+            },
+          ),
+          ),
+          
+          
+        ],
+     
     );
   }
 
@@ -179,7 +199,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       _timeController.value =
           TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
     }
-
 
     return Container(
       margin: EdgeInsets.only(
@@ -211,13 +230,15 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           //_buildSlider(),
           Padding(
             padding: EdgeInsets.only(top: 30),
-            child: task['classification'] == '其它'?Text(''):buildStarInput(task['score'] / 20, (ret) {
-              print("on star changed " + ret.toString());
-              setState(() {
-                this.score = (ret * 20).toInt();
-                print(this.score.toString());
-              });
-            }),
+            child: task['classification'] == '其它'
+                ? Text('')
+                : buildStarInput(task['score'] / 20, (ret) {
+                    print("on star changed " + ret.toString());
+                    setState(() {
+                      this.score = (ret * 20).toInt();
+                      print(this.score.toString());
+                    });
+                  }),
           )
         ],
       ),
@@ -295,7 +316,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
   }
 
   Widget _buildSound2(SelectFile file) {
-    
     return InkWell(
       onTap: () {
         {}
@@ -305,12 +325,11 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         files.remove(file);
         setState(() {});
       }),
-    ); 
+    );
   }
 
   Widget _buildImage(attach) {
-    print('build image....');
-    print(ScreenUtil().setWidth(165).toString() + " -- " + ScreenUtil().setHeight(165).toString());
+
     return InkWell(
       onTap: () {
         Global.prefs.setInt("_attachmentId", attach['id']);
@@ -322,7 +341,6 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
         width: ScreenUtil().setWidth(165),
         height: ScreenUtil().setWidth(165),
-   
         child: ClipRRect(
           child: CachedNetworkImage(
             imageUrl: attach['url'],
@@ -346,6 +364,51 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     );
   }
 
+  _return() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new LoadingDialog(
+            text: "正在提交...",
+          );
+        });
+    print("score = " + this.score.toString() + ", " + _titleController.text);
+    FormData formData = new FormData.fromMap({
+      "comments": "",
+      "id": data['task']['id'],
+      "score": this.score,
+      "title": _titleController.text,
+      "spendTime": int.parse(_timeController.text) * 60
+    });
+    print("score = " + this.score.toString() + ", " + _titleController.text);
+    print(formData.fields);
+
+    if (files.length > 0) {
+      for (SelectFile file in files) {
+        formData.files.add(MapEntry(
+          "files",
+          MultipartFile.fromFileSync(file.file.path, filename: file.type),
+        ));
+      }
+    }
+
+    String url = "/api/v1/ums/task/return";
+
+    print(formData);
+    HttpUtil.getInstance().put(url, formData: formData).then((val) {
+      Navigator.pop(context);
+      print(val);
+      if (val['code'] == '10000') {
+        GlobalEventBus.fireRefreshCheckList();
+        Navigator.pop(context);
+      } else {
+        Fluttertoast.showToast(
+            msg: val['message'], gravity: ToastGravity.CENTER);
+      }
+    });
+  }
+
   _submit() {
     showDialog(
         context: context,
@@ -355,7 +418,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
             text: "正在提交...",
           );
         });
-print("score = " + this.score.toString() + ", " + _titleController.text);
+    print("score = " + this.score.toString() + ", " + _titleController.text);
     FormData formData = new FormData.fromMap({
       "comments": "",
       "id": data['task']['id'],

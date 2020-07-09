@@ -1,38 +1,45 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:file/local.dart';
-
 import 'package:flutter/material.dart';
-
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pupil/common/global.dart';
-
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
-
 import 'package:pupil/widgets/common.dart';
-
+import 'package:pupil/widgets/course.dart';
+import 'package:pupil/widgets/dialog.dart';
+import 'package:pupil/widgets/input.dart';
 import 'package:pupil/widgets/loading_dlg.dart';
 import 'package:pupil/widgets/photo_view.dart';
 import 'package:pupil/widgets/recorder.dart';
 
-class TaskReviewDetailPage extends StatefulWidget {
-  final String taskId;
-  TaskReviewDetailPage(this.taskId);
+class TaskEditPage extends StatefulWidget {
   @override
-  _TaskReviewDetailPageState createState() => _TaskReviewDetailPageState();
+  _TaskEditPageState createState() => _TaskEditPageState();
 }
 
-class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
-  List<SelectFile> files = List();
-  var _eventSubscription;
+class _TaskEditPageState extends State<TaskEditPage> {
+  int taskId = 0;
+  String _course;
+  String _type;
 
+  List<SelectFile> files = List();
+
+  TextEditingController _titleController =
+      TextEditingController.fromValue(TextEditingValue(text: ''));
+  TextEditingController _timeController =
+      TextEditingController.fromValue(TextEditingValue(text: ''));
+  int score = 0;
+  var _eventSubscription;
   var data;
   @override
   void initState() {
+    taskId = Global.prefs.getInt("_taskId");
     _refreshData();
     _registerEvent();
     super.initState();
@@ -44,6 +51,9 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
       print(resp);
       setState(() {
         data = resp['data'];
+        var task = data['task'];
+        _course = task['course'];
+        _type = task['classification'];
       });
     });
   }
@@ -68,7 +78,20 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: data == null ? Text('') : Text(data['task']['title']),
+        title: Text('修改'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              showConfirmDialog(context, '确定要删除吗', () {
+                HttpUtil.instance
+                    .delete("/api/v1/ums/task/" + taskId.toString());
+                GlobalEventBus.fireRefreshCheckList();
+                Navigator.pop(context);
+              });
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: GestureDetector(
@@ -80,49 +103,22 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
           child: _buildBody(data),
         ),
       ),
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomPadding: false,
       floatingActionButton: _buildFloatingActionButtion(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _buildFloatingActionButtion(context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
+      margin: EdgeInsets.fromLTRB(
+          ScreenUtil().setWidth(20), 0, ScreenUtil().setWidth(20), 0),
       width: ScreenUtil().setWidth(750),
-      height: ScreenUtil().setHeight(230),
+      height: ScreenUtil().setHeight(100),
       child: Column(
-        children: <Widget>[
-          buildCameraAndRecordButtons(_selectImage, _record),
-          _buildSubmitButton()
-        ],
+        children: <Widget>[_buildSubmitButton()],
       ),
     );
-  }
-
-  _record() {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Recorder((path, duration) {
-            files.add(SelectFile(
-                file: LocalFileSystem().file(path),
-                type: 'sound',
-                duration: duration));
-            setState(() {});
-          });
-        });
-  }
-
-  Future _selectImage() async {
-    var image = await ImagePicker.pickImage(
-        source: ImageSource.camera,
-        maxWidth: 1080,
-        maxHeight: 1440,
-        imageQuality: 50);
-    print(image.path);
-    files.add(SelectFile(file: image, type: "image"));
-    setState(() {});
   }
 
   Widget _buildSubmitButton() {
@@ -130,7 +126,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
       width: ScreenUtil().setWidth(750),
       child: RaisedButton(
         child: Text(
-          '完成复习',
+          '保存',
           style: TextStyle(color: Colors.white, fontSize: 18),
         ),
         color: Theme.of(context).primaryColor,
@@ -143,7 +139,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
 
   Future _getData() async {
     return HttpUtil.getInstance().get(
-      "api/v1/ums/task/" + widget.taskId.toString(),
+      "api/v1/ums/task/" + taskId.toString(),
     );
   }
 
@@ -155,42 +151,66 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
     }
     var task = data['task'];
     var attachments = data['attachments'];
-    Global.prefs.setInt("_taskId", task['id']);
+
+    _titleController.value = TextEditingValue(text: task['title']);
+    if (_timeController.text.length == 0) {
+      _timeController.value =
+          TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
+    }
 
     return Container(
       margin: EdgeInsets.only(
         left: 20,
         right: 20,
-        top: 10,
+        top: 20,
       ),
       child: Column(
         children: <Widget>[
-          _buildAttachment(attachments),
-          _buildTimeInfo(task),
+          buildCourseSelectWidget(_course, Theme.of(context).accentColor,
+              (val) {
+            setState(() {
+              _course = val;
+              _type = '';
+            });
+          }),
+          buildSubTypeSelectWidget(
+              _course, _type, Theme.of(context).accentColor, (val) {
+            setState(() {
+              _type = val;
+            });
+          }),
           Divider(
             height: ScreenUtil().setHeight(20),
           ),
-          _buildContentWidget(),
-        ],
-      ),
-    );
-  }
 
-  _buildTimeInfo(task) {
-    if (task['outTime'] < 60) {
-      return Text('');
-    }
-    return Container(
-      width: ScreenUtil().setWidth(710),
-      margin: EdgeInsets.only(
-          top: ScreenUtil().setHeight(20), bottom: ScreenUtil().setHeight(20)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            '异常时间' + (task['outTime'] ~/ 60).toString() + "分钟",
-            style: TextStyle(color: Colors.red),
+          _buildAttachment(attachments),
+          buildInput3(_titleController, '标题', false, null, TextInputType.text),
+
+          Stack(
+            children: <Widget>[
+              buildInput3(
+                  _timeController, '作业耗时', false, null, TextInputType.number),
+              Positioned(
+                right: 0,
+                top: 15,
+                child: Text('耗时(分钟)'),
+              )
+            ],
           ),
+          //buildInput(_commonsController, null, '作业评语', false),
+          //_buildSlider(),
+          Padding(
+            padding: EdgeInsets.only(top: 30),
+            child: task['classification'] == '其它'
+                ? Text('')
+                : buildStarInput(task['score'] / 20, (ret) {
+                    print("on star changed " + ret.toString());
+                    setState(() {
+                      this.score = (ret * 20).toInt();
+                      print(this.score.toString());
+                    });
+                  }),
+          )
         ],
       ),
     );
@@ -254,86 +274,6 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
     );
   }
 
-  ///////////////////////
-  ///
-  Widget _buildContentWidget() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(0, 20, 0, 10),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              //Icon(Icons.timer, color: Theme.of(context).accentColor),
-              Text(
-                ' 补充内容',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              )
-            ],
-          ),
-          Container(
-            width: ScreenUtil().setWidth(750),
-            margin: EdgeInsets.only(top: 0),
-            child: _buildImages2(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImages2() {
-    List<Widget> imageList = new List();
-    if (imageList.length == 0) {
-      for (int i = 0; i < files.length; i++) {
-        SelectFile file = files[i];
-        if (file.type == 'image') {
-          imageList.add(_buildImage2(files[i]));
-        } else {
-          imageList.add(_buildSound2(files[i]));
-        }
-      }
-    }
-    return Wrap(
-      spacing: 0,
-      alignment: WrapAlignment.start,
-      children: imageList,
-    );
-  }
-
-  Widget _buildImage2(SelectFile file) {
-    print('build image....');
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(PageRouteBuilder(
-            pageBuilder: (c, a, s) => PreviewImagesWidget(
-                  file.file.path,
-                )));
-      },
-      child: Container(
-        child: buildImageWithDel(file.file, () {
-          file.file.delete();
-          files.remove(file);
-          setState(() {});
-        }),
-      ),
-    );
-  }
-
-  Widget _buildSound2(SelectFile file) {
-    print('build sound....');
-    return InkWell(
-      onTap: () {
-        {}
-      },
-      child: SoundWidget(file, () {
-        file.file.delete();
-        files.remove(file);
-        setState(() {});
-      }),
-    );
-  }
-
-  ///
-
   _submit() {
     showDialog(
         context: context,
@@ -343,18 +283,20 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
             text: "正在提交...",
           );
         });
+    print("score = " + this.score.toString() + ", " + _titleController.text);
+    var formData = {
+      "comments": "",
+      "id": data['task']['id'],
+      "score": this.score,
+      "title": _titleController.text,
+      "course": _course,
+      "classification": _type,
+      "spendTime": int.parse(_timeController.text) * 60
+    };
+    print("score = " + this.score.toString() + ", " + _titleController.text);
+  
 
-    FormData formData = new FormData.fromMap({});
-
-    if (files.length > 0) {
-      for (SelectFile file in files) {
-        formData.files.add(MapEntry(
-          "files",
-          MultipartFile.fromFileSync(file.file.path, filename: file.type),
-        ));
-      }
-    }
-    String url = "/api/v1/ums/task/reviewed/" + widget.taskId;
+    String url = "/api/v1/ums/task";
 
     print(formData);
     HttpUtil.getInstance().put(url, formData: formData).then((val) {

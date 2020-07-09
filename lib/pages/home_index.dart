@@ -227,6 +227,8 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     Widget text;
     if (status == 'ASSIGNED') {
       text = Text('快去提交', style: TextStyle(color: Colors.red, fontSize: 11));
+    } if (status == 'RETURN') {
+      text = Text('快去订正', style: TextStyle(color: Colors.red, fontSize: 11));
     } else {
       text = Text('快去复习',
           style: TextStyle(color: Colors.lightGreen, fontSize: 11));

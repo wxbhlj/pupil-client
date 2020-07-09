@@ -127,21 +127,10 @@ class _TaskManagerPageState extends State<TaskManagerPage> {
       ),
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {
-        String status = tasks[index]['status'];
-        if (status == 'UPLOAD') {
+
           Global.prefs.setInt("_taskId", tasks[index]['id']);
-          Routers.navigateTo(context, Routers.taskCheckDetailPage);
-        } else if (status == 'ASSIGNED') {
-          Global.prefs.setInt("_taskId", tasks[index]['id']);
-          Global.prefs.setString("_taskTitle", tasks[index]['title']);
-          Routers.navigateTo(context, Routers.taskDoitPage);
-        } else {
-          Routers.navigateTo(
-              context,
-              Routers.taskReviewDetailPage +
-                  "?taskId=" +
-                  tasks[index]['id'].toString());
-        }
+          Routers.navigateTo(context, Routers.taskEditPage);
+        
       },
       onLongPress: () {
         showConfirmDialog(context, '确定要删除吗', () {

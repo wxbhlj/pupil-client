@@ -11,6 +11,7 @@ import 'package:pupil/pages/task_check_detail.dart';
 import 'package:pupil/pages/task_check_list.dart';
 import 'package:pupil/pages/task_create.dart';
 import 'package:pupil/pages/task_doit.dart';
+import 'package:pupil/pages/task_edit.dart';
 import 'package:pupil/pages/task_manager.dart';
 import 'package:pupil/pages/task_new.dart';
 import 'package:pupil/pages/task_review_detail.dart';
@@ -49,6 +50,7 @@ class Routers {
   static String moonCreatePage = '/moonCreatePage';
   static String coinExchangePage = '/coinExchangePage';
   static String coinChangeListPage = '/coinChangeListPage';
+  static String taskEditPage = '/taskEditPage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -83,6 +85,8 @@ class Routers {
     router.define(moonCreatePage, handler: _buildHandler(MoonCreatePage()));
     router.define(coinExchangePage, handler:_buildHandler(CoinExchangePage()));
     router.define(coinChangeListPage, handler:_buildHandler(CoinChangeListPage()));
+    router.define(taskEditPage, handler:_buildHandler(TaskEditPage()));
+    
 
     router.define(taskReviewDetailPage, handler: Handler(
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {

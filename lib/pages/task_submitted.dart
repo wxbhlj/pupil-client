@@ -77,7 +77,7 @@ class _TaskSubmittedPageState extends State<TaskSubmittedPage> {
       var widget = Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
         width: ScreenUtil().setWidth(165),
-        height: ScreenUtil().setHeight(165),
+        height: ScreenUtil().setWidth(165),
         decoration: new BoxDecoration(
           //背景
           color: idx == _select ? Colors.red : Colors.blue,
@@ -105,7 +105,7 @@ class _TaskSubmittedPageState extends State<TaskSubmittedPage> {
       child: Container(
         margin: EdgeInsets.only(left: 0, right: 15, top: 10, bottom: 10),
         width: ScreenUtil().setWidth(165),
-        height: ScreenUtil().setHeight(165),
+        height: ScreenUtil().setWidth(165),
         decoration: new BoxDecoration(
           //背景
           color: times == 0 ? Colors.orange[300] : Colors.grey,
