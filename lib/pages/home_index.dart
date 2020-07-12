@@ -80,7 +80,9 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     _eventSubscription =
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
       print("onEvent:" + event.eventType);
-      if (event.eventType == EVENT_REFRESH_TODOLIST) {}
+      if (event.eventType == EVENT_REFRESH_TODOLIST) {
+        _refreshTodoList();
+      }
     });
   }
 
@@ -145,8 +147,14 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   }
 
   Widget _buildTaskList() {
-    if (tasks == null) {
-      return Text('');
+    if (tasks == null || tasks.length == 0) {
+      return Container(
+        width: ScreenUtil().setWidth(750),
+        height: ScreenUtil().setHeight(300),
+        child: Center(
+          child: Text('按时完成作业是个好习惯', style: TextStyle(fontSize: 11),),
+        ),
+      );
     }
     return Container(
       width: ScreenUtil().setWidth(750),

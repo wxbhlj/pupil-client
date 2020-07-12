@@ -361,7 +361,7 @@ class _TaskReviewDetailPageState extends State<TaskReviewDetailPage> {
       Navigator.pop(context);
       print(val);
       if (val['code'] == '10000') {
-        GlobalEventBus.fireRefreshCheckList();
+        GlobalEventBus.fireRefreshTodoList();
         Navigator.pop(context);
       } else {
         Fluttertoast.showToast(

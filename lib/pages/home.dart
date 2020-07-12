@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pupil/common/routers.dart';
 import 'package:pupil/pages/setting/settings.dart';
+import 'package:pupil/widgets/upgrade.dart';
 
 import '../common/global_event.dart';
 import '../pages/login.dart';
@@ -35,7 +36,7 @@ class _HomePageState extends State<HomePage> {
       }
     });
     super.initState(); //无名无参需要调用
-    //CheckUpdate().check(context);
+    CheckUpdate().check(context);
   }
 
   @override
@@ -104,36 +105,6 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           _currentIndex = idx;
         });
-      },
-    );
-  }
-
-  Future<bool> showInstallUpdateDialog() {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("检测到新版本"),
-          content: Text("已准备好更新，确认安装新版本?"),
-          actions: <Widget>[
-            FlatButton(
-                child: Text(
-                  "取消",
-                  style: TextStyle(color: Color(0xff999999)),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                } // 关闭对话框
-                ),
-            FlatButton(
-              child: Text("确认"),
-              onPressed: () {
-                //关闭对话框并返回true
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
       },
     );
   }

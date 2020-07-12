@@ -23,7 +23,7 @@ class AppInfo {
 
 class CheckUpdate {
   static String _downloadPath = '';
-  static String _filename = 'familyObjective.apk';
+  static String _filename = 'pupil.apk';
   static String _taskId = '';
 
   check(context) async {
@@ -206,7 +206,7 @@ class CheckUpdate {
       _port.listen(onData);
       FlutterDownloader.registerCallback(downloadCallback);
       _taskId = await FlutterDownloader.enqueue(
-          url: 'http://www.shellsports.cn/app.apk',
+          url: 'http://www.shellsports.cn/pupil.apk',
           savedDir: _downloadPath,
           fileName: _filename,
           showNotification: true,
