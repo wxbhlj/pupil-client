@@ -34,7 +34,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     _registerEvent();
 
     user = Global.profile.user;
-    print(user);
+ 
     if (DateTime.now().millisecondsSinceEpoch - user.loginTime >
         1000 * 60 * 60 * 24) {
       //重新获取数据
@@ -64,7 +64,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     _getTodoList().then((resp) {
       setState(() {
         tasks = resp['data'];
-        print(tasks);
+ 
       });
     });
   }
@@ -79,7 +79,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   _registerEvent() {
     _eventSubscription =
         GlobalEventBus().event.on<CommonEventWithType>().listen((event) {
-      print("onEvent:" + event.eventType);
+ 
       if (event.eventType == EVENT_REFRESH_TODOLIST) {
         _refreshTodoList();
       }
@@ -232,10 +232,11 @@ class _HomeIndexPageState extends State<HomeIndexPage>
   }
 
   Widget _buildStatus(String status) {
+
     Widget text;
     if (status == 'ASSIGNED') {
       text = Text('快去提交', style: TextStyle(color: Colors.red, fontSize: 11));
-    } if (status == 'RETURN') {
+    } else if (status == 'RETURN') {
       text = Text('快去订正', style: TextStyle(color: Colors.red, fontSize: 11));
     } else {
       text = Text('快去复习',

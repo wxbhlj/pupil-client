@@ -6,6 +6,7 @@ import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
 import 'package:pupil/common/routers.dart';
 import 'package:pupil/common/utils.dart';
+import 'package:pupil/pages/task_manager_tabview.dart';
 import 'package:pupil/widgets/dialog.dart';
 
 class TaskManagerPage extends StatefulWidget {
@@ -13,8 +14,11 @@ class TaskManagerPage extends StatefulWidget {
   _TaskManagerPageState createState() => _TaskManagerPageState();
 }
 
-class _TaskManagerPageState extends State<TaskManagerPage> {
+class _TaskManagerPageState extends State<TaskManagerPage>  with SingleTickerProviderStateMixin{
   var _eventSubscription;
+
+  TabController _tabController;
+
   @override
   void initState() {
     _eventSubscription =
@@ -24,6 +28,7 @@ class _TaskManagerPageState extends State<TaskManagerPage> {
         setState(() {});
       }
     });
+    _tabController = new TabController(vsync: this, length: 4);
     super.initState();
   }
 
@@ -38,109 +43,32 @@ class _TaskManagerPageState extends State<TaskManagerPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('作业管理'),
+        bottom: TabBar(
+          onTap: (int index){
+                print('Selected......$index');
+              },
+          controller: _tabController,
+          tabs: <Widget>[
+            Tab(text: '语文'),
+            Tab(text: '数学'),
+            Tab(text: '英语'),
+            Tab(text: '其它'),
+          ],
+        ),
       ),
-      body: FutureBuilder(
-          future: _getData(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return Center(
-                  child: Text('加载中...'),
-                );
-
-              default: //如果_calculation执行完毕
-                if (snapshot.hasError) {
-                  //若_calculation执行出现异常
-                  return new Text('Error: ${snapshot.error}');
-                } else {
-                  return _createListView(context, snapshot);
-                }
-            }
-          }),
-    );
-  }
-
-  Future _getData() async {
-    return HttpUtil.getInstance().get(
-      "api/v1/ums/task/list?status=&userId=" +
-          Global.profile.user.userId.toString(),
-    );
-  }
-
-  Widget _createListView(BuildContext context, AsyncSnapshot snapshot) {
-    print(snapshot.data['data']);
-    var items = snapshot.data['data'];
-    return ListView.builder(
-      itemBuilder: (context, index) => _itemBuilder(context, index, items),
-      itemCount: items.length * 2,
-    );
-  }
-
-  Widget _itemBuilder(BuildContext context, int index, tasks) {
-    if (index.isOdd) {
-      return Divider();
-    }
-    index = index ~/ 2;
-    return ListTile(
-      title: Row(
+      body: TabBarView(
+        controller: _tabController,
         children: <Widget>[
-          Expanded(
-            child: Text(
-              tasks[index]['title'],
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Text(Utils.formatDate3(tasks[index]['created']))
+          TaskManagerTabviewPage('语文'),
+          TaskManagerTabviewPage('数学'),
+          TaskManagerTabviewPage('英语'),
+          TaskManagerTabviewPage('其它'),
         ],
       ),
-      leading: Stack(
-        children: <Widget>[
-          Image.asset(
-              'images/' + Utils.translate(tasks[index]['course']) + '.png',
-              width: 48),
-        ],
-      ),
-      subtitle: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            //padding: EdgeInsets.only(top: 5),
-            child: RatingBar(
-              initialRating: tasks[index]['score'] / 20,
-              direction: Axis.horizontal,
-              allowHalfRating: true,
-              itemSize: ScreenUtil().setWidth(32),
-              itemCount: 5,
-              ratingWidget: RatingWidget(
-                full: Icon(Icons.star, color: Colors.orange),
-                half: Icon(
-                  Icons.star_half,
-                  color: Colors.orange,
-                ),
-                empty: Icon(Icons.star_border, color: Colors.white),
-              ),
-              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-            ),
-          ),
-          Utils.buildStatus(tasks[index]['status']),
-        ],
-      ),
-      trailing: Icon(Icons.keyboard_arrow_right),
-      onTap: () {
-
-          Global.prefs.setInt("_taskId", tasks[index]['id']);
-          Routers.navigateTo(context, Routers.taskEditPage);
-        
-      },
-      onLongPress: () {
-        showConfirmDialog(context, '确定要删除吗', () {
-          HttpUtil.instance
-              .delete("/api/v1/ums/task/" + tasks[index]['id'].toString());
-          setState(() {});
-        });
-      },
     );
   }
 
+
+ 
   
 }
