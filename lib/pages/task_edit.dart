@@ -1,11 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
-import 'package:file/local.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pupil/common/global.dart';
 import 'package:pupil/common/global_event.dart';
 import 'package:pupil/common/http_util.dart';
@@ -15,8 +12,7 @@ import 'package:pupil/widgets/course.dart';
 import 'package:pupil/widgets/dialog.dart';
 import 'package:pupil/widgets/input.dart';
 import 'package:pupil/widgets/loading_dlg.dart';
-import 'package:pupil/widgets/photo_view.dart';
-import 'package:pupil/widgets/recorder.dart';
+
 
 class TaskEditPage extends StatefulWidget {
   @override
@@ -32,8 +28,8 @@ class _TaskEditPageState extends State<TaskEditPage> {
 
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
-  TextEditingController _timeController =
-      TextEditingController.fromValue(TextEditingValue(text: ''));
+  //TextEditingController _timeController =
+  //    TextEditingController.fromValue(TextEditingValue(text: ''));
   int score = 0;
   var _eventSubscription;
   var data;
@@ -151,12 +147,17 @@ class _TaskEditPageState extends State<TaskEditPage> {
     }
     var task = data['task'];
     var attachments = data['attachments'];
+    if(score == 0) {
+      score = task['score'];
+    }
+    
 
     _titleController.value = TextEditingValue(text: task['title']);
+    /*
     if (_timeController.text.length == 0) {
       _timeController.value =
           TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
-    }
+    }*/
 
     return Container(
       margin: EdgeInsets.only(
@@ -185,7 +186,7 @@ class _TaskEditPageState extends State<TaskEditPage> {
 
           _buildAttachment(attachments),
           buildInput3(_titleController, '标题', false, null, TextInputType.text),
-
+          /*
           Stack(
             children: <Widget>[
               buildInput3(
@@ -196,7 +197,7 @@ class _TaskEditPageState extends State<TaskEditPage> {
                 child: Text('耗时(分钟)'),
               )
             ],
-          ),
+          ),*/
           //buildInput(_commonsController, null, '作业评语', false),
           //_buildSlider(),
           Padding(
@@ -291,7 +292,7 @@ class _TaskEditPageState extends State<TaskEditPage> {
       "title": _titleController.text,
       "course": _course,
       "classification": _type,
-      "spendTime": int.parse(_timeController.text) * 60
+      "spendTime": 0,//int.parse(_timeController.text) * 60
     };
     print("score = " + this.score.toString() + ", " + _titleController.text);
   

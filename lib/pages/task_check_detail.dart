@@ -29,8 +29,8 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
 
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
-  TextEditingController _timeController =
-      TextEditingController.fromValue(TextEditingValue(text: ''));
+  //TextEditingController _timeController =
+  //    TextEditingController.fromValue(TextEditingValue(text: ''));
   int score = 0;
   var _eventSubscription;
   var data;
@@ -195,10 +195,10 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
     var task = data['task'];
     var attachments = data['attachments'];
     _titleController.value = TextEditingValue(text: task['title']);
-    if (_timeController.text.length == 0) {
+    /* if (_timeController.text.length == 0) {
       _timeController.value =
           TextEditingValue(text: (task['spendTime'] ~/ 60).toString());
-    }
+    } */
 
     return Container(
       margin: EdgeInsets.only(
@@ -215,7 +215,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
           ),
           buildInput3(_titleController, '标题', false, null, TextInputType.text),
 
-          Stack(
+          /* Stack(
             children: <Widget>[
               buildInput3(
                   _timeController, '作业耗时', false, null, TextInputType.number),
@@ -225,7 +225,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
                 child: Text('耗时(分钟)'),
               )
             ],
-          ),
+          ), */
           //buildInput(_commonsController, null, '作业评语', false),
           //_buildSlider(),
           Padding(
@@ -379,7 +379,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       "id": data['task']['id'],
       "score": this.score,
       "title": _titleController.text,
-      "spendTime": int.parse(_timeController.text) * 60
+      "spendTime": 0, //int.parse(_timeController.text) * 60
     });
     print("score = " + this.score.toString() + ", " + _titleController.text);
     print(formData.fields);
@@ -424,7 +424,7 @@ class _TaskCheckDetailPageState extends State<TaskCheckDetailPage> {
       "id": data['task']['id'],
       "score": this.score,
       "title": _titleController.text,
-      "spendTime": int.parse(_timeController.text) * 60
+      "spendTime": 0, //int.parse(_timeController.text) * 60
     });
     print("score = " + this.score.toString() + ", " + _titleController.text);
     print(formData.fields);

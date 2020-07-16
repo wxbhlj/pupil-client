@@ -36,8 +36,8 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
 
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
-  TextEditingController _timeController =
-      TextEditingController.fromValue(TextEditingValue(text: '0'));
+  //TextEditingController _timeController =
+  //    TextEditingController.fromValue(TextEditingValue(text: '0'));
 
   @override
   void initState() {
@@ -96,7 +96,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
               }),
               buildInput3(
                   _titleController, '作业内容', false, null, TextInputType.text),
-              Stack(
+              /* Stack(
                 children: <Widget>[
                   buildInput3(_timeController, '作业耗时', false, null,
                       TextInputType.number),
@@ -106,7 +106,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
                     child: Text('分钟'),
                   )
                 ],
-              ),
+              ), */
               Padding(
                 padding: EdgeInsets.only(top: 30),
                 child: _type == '其它'
@@ -310,7 +310,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
       "course": _course,
       "outTime": 0,
       "score": score.toInt(),
-      "spendTime": int.parse(_timeController.text) * 60,
+      "spendTime": 0, //int.parse(_timeController.text) * 60,
       "status": "CHECKED",
       "title": _titleController.text,
       "userId": Global.profile.user.userId
