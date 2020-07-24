@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import 'global.dart';
 import 'global_event.dart';

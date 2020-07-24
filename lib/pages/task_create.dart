@@ -32,7 +32,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
 
   String _course = '';
   String _type = '';
-  double score = 60;
+  int score = 60;
 
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
