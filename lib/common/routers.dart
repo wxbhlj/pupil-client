@@ -10,6 +10,7 @@ import 'package:pupil/pages/task_assign.dart';
 import 'package:pupil/pages/task_check_detail.dart';
 import 'package:pupil/pages/task_check_list.dart';
 import 'package:pupil/pages/task_create.dart';
+import 'package:pupil/pages/task_daka.dart';
 import 'package:pupil/pages/task_doit.dart';
 import 'package:pupil/pages/task_edit.dart';
 import 'package:pupil/pages/task_manager.dart';
@@ -51,6 +52,7 @@ class Routers {
   static String coinExchangePage = '/coinExchangePage';
   static String coinChangeListPage = '/coinChangeListPage';
   static String taskEditPage = '/taskEditPage';
+  static String taskDakaPage = '/taskDakaPage';
 
   static void configRoutes(Router router) {
     Routers.router = router;
@@ -86,6 +88,7 @@ class Routers {
     router.define(coinExchangePage, handler:_buildHandler(CoinExchangePage()));
     router.define(coinChangeListPage, handler:_buildHandler(CoinChangeListPage()));
     router.define(taskEditPage, handler:_buildHandler(TaskEditPage()));
+    router.define(taskDakaPage, handler:_buildHandler(TaskDakaPage()));
     
 
     router.define(taskReviewDetailPage, handler: Handler(

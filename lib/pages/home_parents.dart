@@ -34,6 +34,7 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
           _arrangeWork(),
           _recordWork(),
           _managerWork(),
+          _daka(),
           SizedBox(
             height: ScreenUtil().setHeight(40),
           ),
@@ -69,6 +70,12 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
   Widget _managerWork() {
     return buildListMenuItem(context, Icons.list, '作业列表', () {
       Routers.navigateTo(context, Routers.taskManagerPage);
+    });
+  }
+
+  Widget _daka() {
+    return buildListMenuItem(context, Icons.pin_drop, '每日打卡', () {
+      Routers.navigateTo(context, Routers.taskDakaPage);
     });
   }
 
