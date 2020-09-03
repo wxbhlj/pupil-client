@@ -37,7 +37,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   _getLineData() {
     String str = Global.prefs
         .getString("_chart_data_" + Global.profile.user.userId.toString());
-    if (str != null && str.length > 0 ) {
+    if (str != null && str.length > 0) {
       var resp = jsonDecode(str);
       int dfTime = DateTime.now().millisecondsSinceEpoch -
           int.parse(resp['date'].toString());
@@ -97,8 +97,15 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       xList.insert(0, item);
       idx++;
     }
+    print("#################" +
+        scoreList1.length.toString() +
+        "," +
+        scoreList2.length.toString() +
+        "," +
+        scoreList3.length.toString() +
+        "," +
+        xList.length.toString());
 
-   
     course['yuwen'] =
         _calScore(resp['data']['yuwen'], resp['data']['yuwen_count']);
     course['shuxue'] =
@@ -269,10 +276,14 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    Text('月平均 ', style:TextStyle(color: Colors.black38,  fontSize: 11)),
-                    Text(' 语文:' + course['yuwen'].toString(), style:TextStyle(color: Colors.red,  fontSize: 11)),
-                    Text(' 数学:' + course['shuxue'].toString(), style:TextStyle(color: Colors.orange, fontSize: 11)),
-                    Text(' 英语:' + course['yingyu'].toString(), style:TextStyle(color: Colors.blue,  fontSize: 11))
+                    Text('月平均 ',
+                        style: TextStyle(color: Colors.black38, fontSize: 11)),
+                    Text(' 语文:' + course['yuwen'].toString(),
+                        style: TextStyle(color: Colors.red, fontSize: 11)),
+                    Text(' 数学:' + course['shuxue'].toString(),
+                        style: TextStyle(color: Colors.orange, fontSize: 11)),
+                    Text(' 英语:' + course['yingyu'].toString(),
+                        style: TextStyle(color: Colors.blue, fontSize: 11))
                   ],
                 ),
               ),
@@ -317,10 +328,11 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           getTitles: (value) {
             if (value < xList.length) {
               //print(value.toString() + "  - " + xList.length.toString());
-              return ((value % 3 == 0 || value == xList.length - 1 ) && value != xList.length - 2)
+              return ((value % 3 == 0 || value == xList.length - 1) &&
+                      value != xList.length - 2)
                   ? xList[value.toInt()]
                   : '';
-             //return xList[value.toInt()];
+              //return xList[value.toInt()];
             }
             return '';
           },
@@ -340,7 +352,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                 return '2';
               case 3:
                 return '3';
-                case 4:
+              case 4:
                 return '4';
               case 5:
                 return '5';
@@ -377,49 +389,61 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
 
   List<LineChartBarData> linesBarData1() {
-    final LineChartBarData lineChartBarData1 = LineChartBarData(
-      spots: scoreList1,
-      isCurved: true,
-      colors: [Colors.red],
-      barWidth: 3,
-      isStrokeCapRound: true,
-      dotData: FlDotData(
-        show: false,
-      ),
-      belowBarData: BarAreaData(
-        show: false,
-      ),
-    );
-    final LineChartBarData lineChartBarData2 = LineChartBarData(
-      spots: scoreList2,
-      isCurved: true,
-      colors: [
-        Colors.orange,
-      ],
-      barWidth: 2,
-      isStrokeCapRound: true,
-      dotData: FlDotData(
-        show: false,
-      ),
-      belowBarData: BarAreaData(show: false, colors: [
-        const Color(0x00aa4cfc),
-      ]),
-    );
-    final LineChartBarData lineChartBarData3 = LineChartBarData(
-      spots: scoreList3,
-      isCurved: true,
-      colors: [
-        Colors.blue,
-      ],
-      barWidth: 2,
-      isStrokeCapRound: true,
-      dotData: FlDotData(
-        show: false,
-      ),
-      belowBarData: BarAreaData(show: false, colors: [
-        const Color(0x00aa4cfc),
-      ]),
-    );
-    return [lineChartBarData1, lineChartBarData2, lineChartBarData3];
+    List<LineChartBarData> list = List();
+    if (scoreList1.length > 0) {
+      final LineChartBarData lineChartBarData1 = LineChartBarData(
+        spots: scoreList1,
+        isCurved: true,
+        colors: [Colors.red],
+        barWidth: 3,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(
+          show: false,
+        ),
+      );
+      list.add(lineChartBarData1);
+    }
+    if (scoreList2.length > 0) {
+      final LineChartBarData lineChartBarData2 = LineChartBarData(
+        spots: scoreList2,
+        isCurved: true,
+        colors: [
+          Colors.orange,
+        ],
+        barWidth: 2,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(show: false, colors: [
+          const Color(0x00aa4cfc),
+        ]),
+      );
+      list.add(lineChartBarData2);
+    }
+
+    if (scoreList3.length > 0) {
+      final LineChartBarData lineChartBarData3 = LineChartBarData(
+        spots: scoreList3,
+        isCurved: true,
+        colors: [
+          Colors.blue,
+        ],
+        barWidth: 2,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(show: false, colors: [
+          const Color(0x00aa4cfc),
+        ]),
+      );
+      list.add(lineChartBarData3);
+    }
+    print(list.length.toString() + " = list.size");
+    return list;
   }
 }

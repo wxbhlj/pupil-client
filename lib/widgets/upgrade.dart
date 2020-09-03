@@ -28,6 +28,7 @@ class CheckUpdate {
 
   check(context) async {
     bool hasNewVersion = await _checkVersion();
+    print("hasNewVersion = " + hasNewVersion.toString());
     if (!hasNewVersion) {
       return;
     }
@@ -139,6 +140,7 @@ class CheckUpdate {
   // 检查版本
   Future<bool> _checkVersion() async {
     // 使用请求库dio读取文件服务器存有版本号的json文件
+    print("############# check version!!!!!!!!");
     var res = await Dio()
         .get('http://www.shellsports.cn/version.json')
         .catchError((e) {
