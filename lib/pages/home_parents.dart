@@ -74,7 +74,7 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
   }
 
   Widget _daka() {
-    return buildListMenuItem(context, Icons.pin_drop, '每日打卡', () {
+    return buildListMenuItem(context, Icons.thumb_up, '每日打卡', () {
       Routers.navigateTo(context, Routers.taskDakaPage);
     });
   }

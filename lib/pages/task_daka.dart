@@ -33,7 +33,7 @@ class _TaskDakaPageState extends State<TaskDakaPage> {
   String _type = '';
   int score = 0;
 
-  List _types = ['养成好习惯', '参与做家务', '日常体育锻炼', '兴趣爱好', '其它'];
+  List<String> _types = [];
 
   TextEditingController _titleController =
       TextEditingController.fromValue(TextEditingValue(text: ''));
@@ -43,6 +43,10 @@ class _TaskDakaPageState extends State<TaskDakaPage> {
   @override
   void initState() {
     super.initState();
+    _types = Global.prefs.getStringList("daka_items");
+    if(_types == null || _types.length == 0) {
+       _types = ['做家务', '按时起床', '踢足球'];
+    }
   }
 
   @override
@@ -54,7 +58,7 @@ class _TaskDakaPageState extends State<TaskDakaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('补记作业'),
+        title: Text('日常打卡'),
       ),
       body: _buildBody(),
       resizeToAvoidBottomPadding: false,
@@ -78,27 +82,17 @@ class _TaskDakaPageState extends State<TaskDakaPage> {
               SizedBox(
                 height: ScreenUtil().setHeight(20),
               ),
-              _buildSubTypeSelectWidget( _type, Theme.of(context).accentColor, (val) {
+              
+              buildInput3(
+                  _titleController, '打卡内容', false, null, TextInputType.text),
+
+                  _buildSubTypeSelectWidget( _type, Theme.of(context).accentColor, (val) {
                 setState(() {
                   _type = val;
                   _titleController.value =
                       TextEditingValue(text: _course + _type);
                 });
               }),
-              buildInput3(
-                  _titleController, '打卡内容', false, null, TextInputType.text),
-              /* Stack(
-                children: <Widget>[
-                  buildInput3(_timeController, '作业耗时', false, null,
-                      TextInputType.number),
-                  Positioned(
-                    right: 0,
-                    top: 15,
-                    child: Text('分钟'),
-                  )
-                ],
-              ), */
-           
              
             ],
           ),
@@ -117,7 +111,7 @@ class _TaskDakaPageState extends State<TaskDakaPage> {
             children: <Widget>[
               //Icon(Icons.timer, color: Theme.of(context).accentColor),
               Text(
-                '选择类型',
+                '',
                 style: TextStyle(fontWeight: FontWeight.w400),
               )
             ],
@@ -194,6 +188,15 @@ class _TaskDakaPageState extends State<TaskDakaPage> {
   }
 
   _submit() async {
+
+    if(!_types.contains(_titleController.text)) {
+      _types.add(_titleController.text);
+    }
+    if(_types.length > 5) {
+      _types.removeAt(0);
+    }
+    Global.prefs.setStringList("daka_items", _types);
+
     showDialog(
         context: context,
         barrierDismissible: false,
