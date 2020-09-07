@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
       body: list[_currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Routers.navigateTo(context, Routers.taskNewPage);
+          Routers.navigateTo(context, Routers.taskCreatePage);
         },
         child: Icon(Icons.create),
       ),

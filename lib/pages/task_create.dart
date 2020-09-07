@@ -53,7 +53,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('补记作业'),
+        title: Text('记录作业'),
       ),
       body: _buildBody(),
       resizeToAvoidBottomPadding: false,
@@ -304,7 +304,9 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
             text: "正在保存...",
           );
         });
-
+    if(_type == '其它') {
+      score = 0;
+    }
     FormData formData = new FormData.fromMap({
       "classification": '',
       "course": _course,

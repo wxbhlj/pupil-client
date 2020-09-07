@@ -34,13 +34,13 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
           _arrangeWork(),
           _recordWork(),
           _managerWork(),
-          _daka(),
           SizedBox(
-            height: ScreenUtil().setHeight(40),
+            height: ScreenUtil().setHeight(20),
           ),
+          _daka(),
           _coinsExchange(),
           SizedBox(
-            height: ScreenUtil().setHeight(40),
+            height: ScreenUtil().setHeight(20),
           ),
           _settings(),
         ],
@@ -56,19 +56,19 @@ class _HomeParentsPageState extends State<HomeParentsPage> {
   }
 
   Widget _arrangeWork() {
-    return buildListMenuItem(context, Icons.assignment, '布置作业', () {
+    return buildListMenuItem(context, Icons.assignment, '作业提醒', () {
       Routers.navigateTo(context, Routers.taskAssignPage);
     });
   }
 
   Widget _recordWork() {
-    return buildListMenuItem(context, Icons.create, '补记作业', () {
+    return buildListMenuItem(context, Icons.create, '记录作业', () {
       Routers.navigateTo(context, Routers.taskCreatePage);
     });
   }
 
   Widget _managerWork() {
-    return buildListMenuItem(context, Icons.list, '作业列表', () {
+    return buildListMenuItem(context, Icons.list, '全部作业', () {
       Routers.navigateTo(context, Routers.taskManagerPage);
     });
   }

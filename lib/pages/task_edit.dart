@@ -284,6 +284,9 @@ class _TaskEditPageState extends State<TaskEditPage> {
             text: "正在提交...",
           );
         });
+    if(_type == '其它') {
+      score = 0;
+    }
     print("score = " + this.score.toString() + ", " + _titleController.text);
     var formData = {
       "comments": "",
