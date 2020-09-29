@@ -50,6 +50,7 @@ class _TaskEditPageState extends State<TaskEditPage> {
         var task = data['task'];
         _course = task['course'];
         _type = task['classification'];
+        print("type = " + _type);
       });
     });
   }

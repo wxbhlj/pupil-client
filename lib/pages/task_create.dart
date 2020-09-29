@@ -308,7 +308,7 @@ class _TaskCreatePageState extends State<TaskCreatePage> {
       score = 0;
     }
     FormData formData = new FormData.fromMap({
-      "classification": '',
+      "classification": _type,
       "course": _course,
       "outTime": 0,
       "score": score.toInt(),

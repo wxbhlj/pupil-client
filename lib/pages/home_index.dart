@@ -216,11 +216,12 @@ class _HomeIndexPageState extends State<HomeIndexPage>
       ),
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {
+        Global.prefs.setInt("_taskId", tasks[index]['id']);
+        Global.prefs.setString("_taskTitle", tasks[index]['title']);
         if (tasks[index]['status'] == 'ASSIGNED') {
           Routers.navigateTo(context, Routers.taskDoitPage);
         } else {
-          Global.prefs.setInt("_taskId", tasks[index]['id']);
-          Global.prefs.setString("_taskTitle", tasks[index]['title']);
+          
           Routers.navigateTo(
               context,
               Routers.taskReviewDetailPage +
